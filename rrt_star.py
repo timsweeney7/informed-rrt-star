@@ -27,29 +27,36 @@ def rand_gen ():
     rand_pt = (x_coord, y_coord)
     pts_explored_set.add(rand_pt)
     
-    return(rand_pt)
+    return rand_pt
 
 def distance (pt1, pt2): 
     distance = round(math.sqrt(pow(pt2[0] - pt1[0], 2) + pow(pt2[1] - pt1[1], 2)))
     return distance
 
-def create_map (): 
+def explore (color_map): 
     global index
     index += 1
     new_pt = rand_gen ()
-    dist = distance(start_pt, new_pt)
-    new_node = (dist, index, start_pt, new_pt)
-    nodes_explored.append(new_node)
+    if mapping.point_is_valid(color_map, new_pt):
+        pts_explored_set.add(new_pt)
+        dist = distance(start_pt, new_pt)
+        new_node = (dist, index, start_pt, new_pt)
+        nodes_explored.append(new_node)
     return nodes_explored
 
 for i in range (0,10): 
-    create_map()
+    explore(mapping.color_map)
+    
+
+print("explored nodes:", nodes_explored)
 
 if __name__ == "__main__":
     # print("obs_pts:", obstacle_points)
     color_map = mapping.draw_simple_map()
     cv.imshow('Informed RRT* Algorith', color_map)
+    # mapping.__add_point(rand_pts)
     cv.waitKey(0)
+    
 
 
 print("explored nodes:", nodes_explored)

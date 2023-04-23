@@ -23,11 +23,6 @@ WHITE = (255,255,255)
 X = 0
 Y = 1
 
-#TODO MOVE THESE INTO A FUNCTION
-obstacle_points = set()  # used to quickly look up if a point is in an obstacle
-map_points = set()       # used to quickly look up if a point is in the map
-
-
 def draw_simple_map():
     background_color = WHITE
     map = np.zeros((Y_MAX_SCALED, X_MAX_SCALED, 3), np.uint8)
@@ -90,7 +85,7 @@ def draw_random_map(num_of_rectangles):
     return map
 
 """
-determine_valid_point
+point_is_valid
 
 Determines if a given set of coordinates is in free space or in obstacle space
 
@@ -98,21 +93,22 @@ color_map:   numpy_array of a color map. map is 3 dimensions [y, x, [color]]
 coordinates: set of xy coordinates [x, y]
 
 """
-def determine_valid_point(color_map, coordinates):
+def point_is_valid(color_map, coordinates):
     if not __point_is_inside_map(coordinates[X], coordinates[Y]):
         return False
-    if color_map[coordinates[Y], coordinates[X]] == WHITE:
+    pixel_color = tuple(color_map[coordinates[Y], coordinates[X]])
+    if pixel_color == WHITE:
         return True
-    elif color_map[coordinates[Y], coordinates[X]] == BLACK:
+    elif pixel_color == BLACK:
         return False
     else:
         raise Exception("determine_valid_point was passed an invalid argument")
 
 
 def __point_is_inside_map(x, y):
-    if (x > 600) or (x < 0):
+    if (x > X_MAX) or (x < 0):
         return False
-    elif (y > 250) or (y < 0):
+    elif (y > Y_MAX) or (y < 0):
         return False
     else:
         return True

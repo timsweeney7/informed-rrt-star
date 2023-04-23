@@ -75,8 +75,8 @@ def draw_random_map(num_of_rectangles):
         first_point_x = random.randint(0, X_MAX_SCALED)
         first_point_y = random.randint(0, Y_MAX_SCALED)
         first_point = [first_point_x, first_point_y]
-        x_increase = random.randint(4,10)
-        y_increase = random.randint(4,10)
+        x_increase = random.randint(10,20)
+        y_increase = random.randint(10,20)
         x_increase_scaled = x_increase * SCALE_FACTOR
         y_increase_scaled = y_increase * SCALE_FACTOR
         second_point = [first_point_x + x_increase_scaled, first_point_y + y_increase_scaled]

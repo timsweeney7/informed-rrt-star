@@ -1,5 +1,4 @@
 # rrt_star.py
-import system
 import mapping
 import math
 import random
@@ -14,10 +13,6 @@ start_pt = (150, 150)
 pts_explored_set = set()
 nodes_explored = []
 
-#(C2C, index, parent_pt, pt_coor)
-start_node = (0, 0, None, start_pt)
-nodes_explored.append(start_node)
-
 
 class Node:
     def __init__(self):
@@ -26,6 +21,13 @@ class Node:
 
     def __str__(self):
         return f"Cost To Come: {self.costToCome}  Parent Coordinates: {self.parentCoordinates}"
+
+
+def create_node_info_map(color_map):
+    node_info_map = np.ndarray.tolist(color_map)
+    
+    node_info_map[:][:] = {"c2c": , "parentCoor": (10,10)}
+    return node_info_map
 
 
 def get_random_point ():
@@ -42,38 +44,21 @@ def distance (pt1, pt2):
     return distance
 
 
-def explore (): 
+def explore (color_map): 
     new_pt = get_random_point()
-    if mapping.point_is_valid(new_pt):
-        dist = distance(start_pt, new_pt)
-        new_node = (dist, index, start_pt, new_pt)
+    if mapping.point_is_valid(color_map=color_map, coordinates=new_pt):
+        c2c = distance(start_pt, new_pt)
+        parentCoor = [0,0]
+        new_node = Node()
+        new_node.costToCome = c2c
+        new_node.parentCoordinates = parentCoor
         nodes_explored.append(new_node)
         return nodes_explored
 
+
 if __name__ == "__main__":
-    # print("obs_pts:", obstacle_points)
-    #color_map = mapping.draw_simple_map()
+
+    color_map = mapping.draw_simple_map()
+    node_info_map = create_node_info_map(color_map)
     #cv.imshow('Informed RRT* Algorithm', color_map)
     #cv.waitKey(0)
-
-    testNode_1 = Node()
-    testNode_2 = Node()
-    testNode_1.costToCome = 10
-    testNode_2.costToCome = 50
-    
-    print(testNode_1)
-    print(testNode_2)
-
-    print() 
-
-    for i in range (0,10): 
-        explore()
-    
-
-    print("explored nodes:", nodes_explored)
-
-    
-
-    # x=rand_gen()
-    # # print(pts_explored)
-    # print(x)

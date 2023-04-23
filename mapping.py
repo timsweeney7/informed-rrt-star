@@ -1,14 +1,14 @@
-import heapq as hq
-import copy
 import numpy as np
-import math
-from matplotlib import pyplot as plt
 import cv2 as cv
-from numpy import tan, deg2rad
+import random
 
 
-
+# map dimensions
+X_MAX = 300
+Y_MAX = 300
 SCALE_FACTOR = 2
+X_MAX_SCALED = X_MAX * SCALE_FACTOR
+Y_MAX_SCALED = Y_MAX * SCALE_FACTOR
 
 BLUE = (255, 0, 0)
 DARK_GREEN = (15, 168, 33)
@@ -17,65 +17,60 @@ RED = (0, 0, 255)
 YELLOW = (9, 227, 212)
 BLACK = (0, 0, 0)
 GRAY = (199, 198, 195)
+WHITE = (255,255,255)
 
 # for coordinates
 X = 0
 Y = 1
 
-# map dimensions
-X_MAX = 600
-Y_MAX = 250
-
-
+#TODO MOVE THESE INTO A FUNCTION
 obstacle_points = set()  # used to quickly look up if a point is in an obstacle
 map_points = set()       # used to quickly look up if a point is in the map
 
-node_index = 0
 
 
-def draw_map_1():
+def draw_map_1(num_of_rectangles):
     # Background
-    background_color = BLACK
-    map = np.zeros((250*SCALE_FACTOR, 600*SCALE_FACTOR, 3), np.uint8)
+    background_color = WHITE
+    map = np.zeros((Y_MAX_SCALED, X_MAX_SCALED, 3), np.uint8)
     map[:] = background_color
 
-    # box 1 boundary
-    pts = np.array([[(100) * SCALE_FACTOR, 0 * SCALE_FACTOR],
-                    [(150) * SCALE_FACTOR, 0 * SCALE_FACTOR],
-                    [(150) * SCALE_FACTOR, (100) * SCALE_FACTOR],
-                    [(100) * SCALE_FACTOR, (100) * SCALE_FACTOR]],
-                   np.int32)
-    cv.fillPoly(map, [pts], YELLOW)
+    for i in range(0,num_of_rectangles):
+        first_point_x = random.randint(0, X_MAX_SCALED)
+        first_point_y = random.randint(0, Y_MAX_SCALED)
+        first_point = [first_point_x, first_point_y]
+        x_increase = random.randint(4,10)
+        y_increase = random.randint(4,10)
+        x_increase_scaled = x_increase * SCALE_FACTOR
+        y_increase_scaled = y_increase * SCALE_FACTOR
+        second_point = [first_point_x + x_increase_scaled, first_point_y + y_increase_scaled]
+        if second_point[1] > X_MAX_SCALED:
+            second_point[1] = X_MAX_SCALED
+        if second_point[0] > Y_MAX_SCALED:
+            second_point[0] = Y_MAX_SCALED
 
-    # box 1
-    pts = np.array([[100 * SCALE_FACTOR, 0 * SCALE_FACTOR],
-                    [150 * SCALE_FACTOR, 0 * SCALE_FACTOR],
-                    [150 * SCALE_FACTOR, 100 * SCALE_FACTOR],
-                    [100 * SCALE_FACTOR, 100 * SCALE_FACTOR]],
-                   np.int32)
-    cv.fillPoly(map, [pts], BLUE)
-
+        cv.rectangle(map, first_point, second_point, BLACK, -1)
 
     return map
 
+"""
+determine_valid_point
 
-def get_valid_point_map(color_map):
-    valid_point_map = np.ones((250 * SCALE_FACTOR, 600 * SCALE_FACTOR), np.uint8)
-    for x in range(0, 600 * SCALE_FACTOR):
-        for y in range(0, 250 * SCALE_FACTOR):
-            pixel_color = tuple(color_map[y, x])
-            if pixel_color == YELLOW or pixel_color == BLUE:
-                valid_point_map[y, x] = 0
-    return valid_point_map
+Determines if a given set of coordinates is in free space or in obstacle space
 
+color_map:   numpy_array of a color map. map is 3 dimensions [y, x, [color]]
+coordinates: set of xy coordinates [x, y]
 
-def determine_valid_point(valid_point_map, coordinates):
+"""
+def determine_valid_point(color_map, coordinates):
     if not __point_is_inside_map(coordinates[X], coordinates[Y]):
         return False
-    if valid_point_map[coordinates[Y], coordinates[X]] == 1:
+    if color_map[coordinates[Y], coordinates[X]] == WHITE:
         return True
-    else:
+    elif color_map[coordinates[Y], coordinates[X]] == BLACK:
         return False
+    else:
+        raise Exception("determine_valid_point was passed an invalid argument")
 
 
 def __point_is_inside_map(x, y):
@@ -106,3 +101,9 @@ def draw_node(child_coordinates, parent_coordinates, map, color):
         parent_coordinates = tuple(int(SCALE_FACTOR * _ ) for _ in parent_coordinates)
         cv.circle(map, parent_coordinates, radius=3, color=color, thickness=-1)
         __draw_line(child_coordinates, parent_coordinates, map, color)
+
+
+if __name__ == "__main__":
+    color_map = draw_map_1(200)
+    cv.imshow('Informed RRT* Algorith', color_map)
+    cv.waitKey(0)

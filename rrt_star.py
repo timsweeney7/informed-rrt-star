@@ -4,15 +4,7 @@ import math
 import random
 import numpy as np
 import cv2 as cv
-
-X_MAX = 300
-Y_MAX = 300
-index = 1
-
-start_pt = (150, 150)
-pts_explored_set = set()
-nodes_explored = []
-
+from mapping import SCALE_FACTOR
 
 class Node:
     def __init__(self):
@@ -26,7 +18,7 @@ class Node:
 def create_node_info_map(color_map):
     node_info_map = np.ndarray.tolist(color_map)
     
-    node_info_map[:][:] = {"c2c": , "parentCoor": (10,10)}
+    node_info_map[:][:] = {"c2c": float('inf'), "parentCoor": None}
     return node_info_map
 
 
@@ -44,21 +36,26 @@ def distance (pt1, pt2):
     return distance
 
 
-def explore (color_map): 
+def explore (color_map, explored_list_local): 
     new_pt = get_random_point()
     if mapping.point_is_valid(color_map=color_map, coordinates=new_pt):
-        c2c = distance(start_pt, new_pt)
-        parentCoor = [0,0]
-        new_node = Node()
-        new_node.costToCome = c2c
-        new_node.parentCoordinates = parentCoor
-        nodes_explored.append(new_node)
-        return nodes_explored
+        explored_list_local.append(new_pt)
+        
 
 
 if __name__ == "__main__":
 
+    explored_list = []
+
     color_map = mapping.draw_simple_map()
     node_info_map = create_node_info_map(color_map)
-    #cv.imshow('Informed RRT* Algorithm', color_map)
-    #cv.waitKey(0)
+    
+    starting_node_coordinates = (150*SCALE_FACTOR, 150*SCALE_FACTOR)
+    starting_node = {"c2c": 0, "parentCoordinates": None}
+    node_info_map[starting_node_coordinates[0]] [starting_node_coordinates[1]] = starting_node
+
+    for i in range(0, 10):
+        explore(color_map=color_map, explored_list_local=explored_list)
+
+    for i in explored_list:
+        print( i)

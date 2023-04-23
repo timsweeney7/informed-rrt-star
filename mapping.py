@@ -28,8 +28,44 @@ obstacle_points = set()  # used to quickly look up if a point is in an obstacle
 map_points = set()       # used to quickly look up if a point is in the map
 
 
+def draw_simple_map():
+    background_color = WHITE
+    map = np.zeros((Y_MAX_SCALED, X_MAX_SCALED, 3), np.uint8)
+    map[:] = background_color
 
-def draw_map_1(num_of_rectangles):
+    # block 1
+    first_point = (50 * SCALE_FACTOR, 25* SCALE_FACTOR)
+    second_point = (100* SCALE_FACTOR, 75* SCALE_FACTOR)
+    cv.rectangle(map, first_point, second_point, BLACK, -1)
+
+    # block 2
+    first_point = (20* SCALE_FACTOR, 100* SCALE_FACTOR)
+    second_point = (35* SCALE_FACTOR, 150* SCALE_FACTOR)
+    cv.rectangle(map, first_point, second_point, BLACK, -1)
+
+    # block 3
+    first_point = (135* SCALE_FACTOR, 140* SCALE_FACTOR)
+    second_point = (165* SCALE_FACTOR, 190* SCALE_FACTOR)
+    cv.rectangle(map, first_point, second_point, BLACK, -1)
+
+    # block 4
+    first_point = (175* SCALE_FACTOR, 30* SCALE_FACTOR)
+    second_point = (210* SCALE_FACTOR, 60* SCALE_FACTOR)
+    cv.rectangle(map, first_point, second_point, BLACK, -1)
+
+    # block 5
+    first_point = (250* SCALE_FACTOR, 150* SCALE_FACTOR)
+    second_point = (275* SCALE_FACTOR, 185* SCALE_FACTOR)
+    cv.rectangle(map, first_point, second_point, BLACK, -1)
+
+    # block 6
+    first_point = (100 * SCALE_FACTOR, 225 * SCALE_FACTOR)
+    second_point = (200 * SCALE_FACTOR, 270 * SCALE_FACTOR)
+    cv.rectangle(map, first_point, second_point, BLACK, -1)
+
+    return map
+
+def draw_random_map(num_of_rectangles):
     # Background
     background_color = WHITE
     map = np.zeros((Y_MAX_SCALED, X_MAX_SCALED, 3), np.uint8)
@@ -104,6 +140,6 @@ def draw_node(child_coordinates, parent_coordinates, map, color):
 
 
 if __name__ == "__main__":
-    color_map = draw_map_1(200)
+    color_map = draw_simple_map()
     cv.imshow('Informed RRT* Algorith', color_map)
     cv.waitKey(0)

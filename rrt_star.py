@@ -5,8 +5,6 @@ import random
 import numpy as np
 import cv2 as cv
 
-X_MAX = 300
-Y_MAX = 300
 index = 1
 
 start_pt = (150, 150)
@@ -20,9 +18,9 @@ nodes_explored.append(start_node)
 
 def rand_gen ():
     # generate a random x coordinate within the limit
-    x_coord = random.randint(0, X_MAX)
+    x_coord = random.randint(0, mapping.X_MAX_SCALED)
     # generate a random y coordinate within the limit
-    y_coord = random.randint(0, Y_MAX)
+    y_coord = random.randint(0, mapping.Y_MAX_SCALED)
 
     rand_pt = (x_coord, y_coord)
     pts_explored_set.add(rand_pt)

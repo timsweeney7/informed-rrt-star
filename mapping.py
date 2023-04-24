@@ -106,9 +106,9 @@ def point_is_valid(color_map, coordinates):
 
 
 def __point_is_inside_map(x, y):
-    if (x > X_MAX) or (x < 0):
+    if (x > X_MAX_SCALED) or (x < 0):
         return False
-    elif (y > Y_MAX) or (y < 0):
+    elif (y > Y_MAX_SCALED) or (y < 0):
         return False
     else:
         return True

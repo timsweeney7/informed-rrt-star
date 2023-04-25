@@ -90,48 +90,48 @@ def get_line_coordinates(p1, p2):
 def find_closest_point(pt, explored_nodes):
     p_queue = []
     for node in explored_nodes:
+        # print(node)
         dist = distance(pt, node["selfCoordinates"])
         tempC2C = dist + node["c2c"]
         # temp_node = (tempC2C, node)
         # temp_node = {"c2c": tempC2C, "parentCoordinates": node["selfCoordinates"], "selfCoordinates": pt, "obstacle": False}
-        heapq.heappush(p_queue, (tempC2C, node))
+        heapq.heappush(p_queue, (tempC2C, node["selfCoordinates"]))
         
 
     try:
-        heapify(p_queue)
         while(True):
             weight, closest_neighbor = heapq.heappop(p_queue)
-            if path_is_good(pt1= pt, pt2= closest_neighbor["parentCoordinates"]):
-                return closest_neighbor
+            if path_is_good(pt1= pt, pt2= closest_neighbor):
+                return closest_neighbor, weight
     except IndexError:
         return(None)
-    
-
-
 
     
 def explore(pixel_map:list, explored_nodes:list, goal_point:tuple, goal_radius):
     for i in range(0, 1000):
         new_pt = get_random_point()
         x, y = new_pt 
-        if pixel_map[y][x]["obstacle"] == False:
-            # Find the explored point that is closest to the new point
-            closest_point = find_closest_point(new_pt, explored_nodes)
-            if closest_point is not None:
-                new_node = {"c2c": closest_point[0], "parentCoordinates": closest_point[1], "selfCoordinates": new_pt, "obstacle": False}
-                new_node = closest_point
-                explored_nodes.append(new_node)
-                pixel_map[y][x] = new_node
-                
-                #if distance(pt1= new_pt , pt2= goal_point) < goal_radius:
-                #    solution_list = backtrack(explored_nodes)
-                #    return solution_list
-                
+        if new_pt not in gen_pts_set:
+            gen_pts_set.add((new_pt[0], new_pt[1]))
+            if pixel_map[y][x]["obstacle"] == False:
+                # Find the explored point that is closest to the new point
+                closest_point = find_closest_point(new_pt, explored_nodes)
+                if closest_point is not None:
+                    new_node = {"c2c": closest_point[1], "parentCoordinates": closest_point[0], "selfCoordinates": new_pt, "obstacle": False}
+                    # new_node = closest_point
+                    explored_nodes.append(new_node)
+                    pixel_map[y][x] = new_node
+                    
+                    #if distance(pt1= new_pt , pt2= goal_point) < goal_radius:
+                    #    solution_list = backtrack(explored_nodes)
+                    #    return solution_list
+                    
 
 
 if __name__ == "__main__":
 
     explored_nodes_list = []
+    gen_pts_set = set()
 
     color_map = mapping.draw_simple_map()
     pixel_info_map = create_pixel_info_map(color_map)

@@ -89,6 +89,7 @@ def get_line_coordinates(p1, p2):
 def find_closest_point(pt, explored_nodes):
     p_queue = []
     for node in explored_nodes:
+        print("Node:", node)
         dist = distance(pt, node["selfCoordinates"])
         heapq.heappush(p_queue, (dist, node["selfCoordinates"]))
 

@@ -110,9 +110,10 @@ def explore(pixel_map:list, explored_nodes:list):
     if pixel_map[y][x]["obstacle"] == False:
         # Find the explored point that is closest to the new point
         closest_point = find_closest_point(new_pt, explored_nodes)
-        new_node = {"c2c": 0, "parentCoordinates": closest_point, "selfCoordinates": new_pt, "obstacle": False}
-        explored_nodes.append(new_node)
-        pixel_map[y][x] = new_node
+        if closest_point is not None:
+            new_node = {"c2c": 0, "parentCoordinates": closest_point, "selfCoordinates": new_pt, "obstacle": False}
+            explored_nodes.append(new_node)
+            pixel_map[y][x] = new_node
         
 
 

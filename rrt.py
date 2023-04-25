@@ -103,18 +103,24 @@ def find_closest_point(pt, explored_nodes):
     
 
 
+
     
-def explore(pixel_map:list, explored_nodes:list):
-    new_pt = get_random_point()
-    x, y = new_pt 
-    if pixel_map[y][x]["obstacle"] == False:
-        # Find the explored point that is closest to the new point
-        closest_point = find_closest_point(new_pt, explored_nodes)
-        if closest_point is not None:
-            new_node = {"c2c": 0, "parentCoordinates": closest_point, "selfCoordinates": new_pt, "obstacle": False}
-            explored_nodes.append(new_node)
-            pixel_map[y][x] = new_node
-        
+def explore(pixel_map:list, explored_nodes:list, goal_point:tuple, goal_radius):
+    for i in range(0, 30):
+        new_pt = get_random_point()
+        x, y = new_pt 
+        if pixel_map[y][x]["obstacle"] == False:
+            # Find the explored point that is closest to the new point
+            closest_point = find_closest_point(new_pt, explored_nodes)
+            if closest_point is not None:
+                new_node = {"c2c": 0, "parentCoordinates": closest_point, "selfCoordinates": new_pt, "obstacle": False}
+                explored_nodes.append(new_node)
+                pixel_map[y][x] = new_node
+                
+                #if distance(pt1= new_pt , pt2= goal_point) < goal_radius:
+                #    solution_list = backtrack(explored_nodes)
+                #    return solution_list
+                
 
 
 if __name__ == "__main__":
@@ -135,10 +141,12 @@ if __name__ == "__main__":
     pixel_info_map[starting_node["selfCoordinates"][1]] [starting_node["selfCoordinates"][0]] = starting_node
 
 
+    # ------------------------------
+    explore(pixel_map= pixel_info_map, explored_nodes= explored_nodes_list, goal_point=(0,0), goal_radius=0)
 
-    for i in range(0, 30):
-        explore(pixel_map= pixel_info_map, explored_nodes= explored_nodes_list)
 
+
+    #--------------------------------
     for i in explored_nodes_list:
         print(i)
 

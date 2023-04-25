@@ -5,7 +5,6 @@ import random
 import numpy as np
 import cv2 as cv
 from mapping import SCALE_FACTOR
-from shapely.geometry import LineString, Point, Polygon
 import heapq
 
 
@@ -37,9 +36,9 @@ def create_pixel_info_map(color_map):
 
 def get_random_point ():
     # generate a random x coordinate within the limit
-    x_coord = random.randint(0, mapping.X_MAX_SCALED)
+    x_coord = random.randint(0, mapping.X_MAX_SCALED-1)
     # generate a random y coordinate within the limit
-    y_coord = random.randint(0, mapping.Y_MAX_SCALED)
+    y_coord = random.randint(0, mapping.Y_MAX_SCALED-1)
     rand_pt = (x_coord, y_coord)
     return rand_pt
     
@@ -106,7 +105,7 @@ def find_closest_point(pt, explored_nodes):
 
     
 def explore(pixel_map:list, explored_nodes:list, goal_point:tuple, goal_radius):
-    for i in range(0, 30):
+    for i in range(0, 1000):
         new_pt = get_random_point()
         x, y = new_pt 
         if pixel_map[y][x]["obstacle"] == False:
@@ -154,6 +153,7 @@ if __name__ == "__main__":
         mapping.draw_node(child_coordinates=i["selfCoordinates"], \
                           parent_coordinates=i["parentCoordinates"], \
                           map= color_map, color= mapping.BLUE)
-        cv.imshow('Informed RRT* Algorith', color_map)
-        cv.waitKey(0)
+    cv.imshow('Informed RRT* Algorith', color_map)
+    cv.waitKey(0)
+    print("Explored_nodes_matrix:", len(explored_nodes_list))
     

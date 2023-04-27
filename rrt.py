@@ -173,7 +173,7 @@ if __name__ == "__main__":
                              goal_radius=GOAL_RADIUS, \
                              num_of_iterations= NUM_OF_ITERATIONS)
     if solution_found == True:
-        print(len(explored_nodes_list))
+        print("Number of iterations needed to find solution: " + len(explored_nodes_list))
         solution = backtrack(explored_nodes= explored_nodes_list, map_= pixel_info_map)
     else: 
         print("Solution not found after " + str(NUM_OF_ITERATIONS) + " points checked!")

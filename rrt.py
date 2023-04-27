@@ -89,7 +89,6 @@ def get_line_coordinates(p1, p2):
 def find_closest_point(pt, explored_nodes):
     p_queue = []
     for node in explored_nodes:
-        print("Node:", node)
         dist = distance(pt, node["selfCoordinates"])
         heapq.heappush(p_queue, (dist, node["selfCoordinates"]))
 
@@ -103,10 +102,8 @@ def find_closest_point(pt, explored_nodes):
     
 
 
-
-    
-def explore(pixel_map:list, explored_nodes:list, goal_point:tuple, goal_radius):
-    for i in range(0, 1000):
+def explore(pixel_map:list, explored_nodes:list, goal_point:tuple, goal_radius, num_of_iterations:int):
+    for i in range(0, num_of_iterations):
         new_pt = get_random_point()
         x, y = new_pt 
         if pixel_map[y][x]["obstacle"] == False:
@@ -117,44 +114,96 @@ def explore(pixel_map:list, explored_nodes:list, goal_point:tuple, goal_radius):
                 explored_nodes.append(new_node)
                 pixel_map[y][x] = new_node
                 
-                #if distance(pt1= new_pt , pt2= goal_point) < goal_radius:
-                #    solution_list = backtrack(explored_nodes)
-                #    return solution_list
-                
+                if distance(pt1= new_pt , pt2= goal_point) < goal_radius:
+                    return True  # return 0 if a solution is found
+
+    # return 1 if no solution is found
+    return False
+
+
+
+def backtrack (explored_nodes:list, map_:list):
+    print("Backtracking...")
+    solution_path = []
+    current_node = explored_nodes[-1]
+    solution_path.append(current_node)
+    
+    # (C2G, C2C, TC, point_index, (x,y,theta)parent_coordinates, (x,y,theta)coordinates)
+    while current_node["parentCoordinates"] is not None:
+        x, y = current_node["parentCoordinates"]
+        parent_node = map_[y][x]
+        current_node = parent_node
+        solution_path.append(parent_node)
+
+    solution_path.reverse()
+    return solution_path 
+
 
 
 if __name__ == "__main__":
 
+    # --- Simulation Setup -----------------------
     explored_nodes_list = []
+    NUM_OF_ITERATIONS = 5000
+    START_POINT = (150, 120)
+    GOAL_POINT = (290, 290)
+    GOAL_RADIUS = 5
 
     color_map = mapping.draw_simple_map()
     pixel_info_map = create_pixel_info_map(color_map)
     
-    starting_node_coordinates = (150*SCALE_FACTOR, 120*SCALE_FACTOR)
-    if( not mapping.point_is_valid(color_map=color_map, coordinates=starting_node_coordinates)):
+    if( not mapping.point_is_valid(color_map=color_map, coordinates=START_POINT)):
         print("invalid starting point")
         exit()
+
+    if( not mapping.point_is_valid(color_map=color_map, coordinates=GOAL_POINT)):
+        print("invalid goal point")
+        exit()
     
-    starting_node = {"c2c": 0, "parentCoordinates": None, "selfCoordinates": starting_node_coordinates, "obstacle": False, }
+    starting_node = {"c2c": 0, "parentCoordinates": None, "selfCoordinates": START_POINT, "obstacle": False}
     explored_nodes_list.append(starting_node)
     
     pixel_info_map[starting_node["selfCoordinates"][1]] [starting_node["selfCoordinates"][0]] = starting_node
 
 
-    # ------------------------------
-    explore(pixel_map= pixel_info_map, explored_nodes= explored_nodes_list, goal_point=(0,0), goal_radius=0)
+    # --- Run the algorithm ---------------------------
+    solution_found = explore(pixel_map= pixel_info_map, \
+                             explored_nodes= explored_nodes_list, \
+                             goal_point=GOAL_POINT,\
+                             goal_radius=GOAL_RADIUS, \
+                             num_of_iterations= NUM_OF_ITERATIONS)
+    if solution_found == True:
+        print(len(explored_nodes_list))
+        solution = backtrack(explored_nodes= explored_nodes_list, map_= pixel_info_map)
+    else: 
+        print("Solution not found after " + str(NUM_OF_ITERATIONS) + " points checked!")
+        exit()
 
 
+    #--- Display results ----------------------------
 
-    #--------------------------------
-    for i in explored_nodes_list:
-        print(i)
+    cv.circle(color_map, GOAL_POINT, radius=GOAL_RADIUS, color=mapping.GRAY, thickness=-1)
 
     for i in explored_nodes_list:
         mapping.draw_node(child_coordinates=i["selfCoordinates"], \
                           parent_coordinates=i["parentCoordinates"], \
                           map= color_map, color= mapping.BLUE)
-    cv.imshow('Informed RRT* Algorith', color_map)
+    cv.imshow('RRT Algorithm', color_map)
     cv.waitKey(0)
+
+    for i in solution:
+        mapping.draw_node(child_coordinates=i["selfCoordinates"], \
+                          parent_coordinates=i["parentCoordinates"], \
+                          map= color_map, color= mapping.RED)
+        cv.imshow('RRT Algorithm', color_map)
+        cv.waitKey(0)
+                        
+    end_point = solution[-1]
+    mapping.draw_node(child_coordinates=i["selfCoordinates"], \
+                      parent_coordinates= None, \
+                      map= color_map, color= mapping.GREEN)
+    cv.imshow('RRT Algorithm', color_map)
+    cv.waitKey(0)
+
     print("Explored_nodes_matrix:", len(explored_nodes_list))
     

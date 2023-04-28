@@ -206,11 +206,11 @@ if __name__ == "__main__":
 
     # --- Simulation Setup -----------------------
     explored_nodes_list = []
-    NUM_OF_ITERATIONS = 5000
+    NUM_OF_ITERATIONS = 100000
     START_POINT = (150, 120)
-    GOAL_POINT = (150, 290)
+    GOAL_POINT = (10, 10)
     GOAL_RADIUS = 5
-    rewiring_radius = 20
+    rewiring_radius = 12
 
     color_map = mapping.draw_simple_map()
     pixel_info_map = create_pixel_info_map(color_map)

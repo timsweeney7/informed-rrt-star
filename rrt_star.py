@@ -1,3 +1,8 @@
+"""
+code based on this paper:
+https://arxiv.org/pdf/1105.1186.pdf
+"""
+
 # rrt_star.py
 import mapping
 import math

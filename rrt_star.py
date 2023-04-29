@@ -88,23 +88,6 @@ def get_line_coordinates(p1, p2):
     return coordinates
 
 
-# def find_closest_point(pt, explored_nodes):
-#     p_queue = []
-#     # calculatle c2c to pt through every node in explored_nodes
-#     for node in explored_nodes:
-#         dist = distance(pt, node["selfCoordinates"])
-#         tempC2C = dist + node["c2c"]
-#         # add the old nodes to a priority queue based on which one produces the lowest c2c
-#         heapq.heappush(p_queue, (tempC2C, node["selfCoordinates"]))     
-#     try:
-#         while(True):
-#             # pop nodes off the priority queue and check that there are no obstacles in between
-#             weight, closest_neighbor = heapq.heappop(p_queue)
-#             if path_is_good(pt1= pt, pt2= closest_neighbor):
-#                 return {"c2c_plus_dist": weight, "coordinates": closest_neighbor}
-#     except IndexError:
-#         return(None)
-
 def get_points_in_neighborhood(pt, radius):
     points = set()
     x, y = pt[0], pt[1]  # access the x and y coordinates separately
@@ -125,11 +108,8 @@ def check_neighborhood(pt, radius, explored_nodes):
 def bestC2C_to_new(pt, nodes_in_neightborhood):
     temp_queue = []
     for node in nodes_in_neightborhood:
-        # print(node)
         dist = distance(pt, node["selfCoordinates"])
         tempC2C = dist + node["c2c"]
-        # temp_node = (tempC2C, node)
-        # temp_node = {"c2c": tempC2C, "parentCoordinates": node["selfCoordinates"], "selfCoordinates": pt, "obstacle": False}
         heapq.heappush(temp_queue, (tempC2C, node["selfCoordinates"]))
     try:
         while(True):
@@ -191,6 +171,8 @@ def backtrack (explored_nodes:list, map_:list):
     solution_path.append(current_node)
     
     # (C2G, C2C, TC, point_index, (x,y,theta)parent_coordinates, (x,y,theta)coordinates)
+    #TODO There is a bug in backtracking where it will enter infinite loop if the parent and 
+    # child have the same coordinates
     while current_node["parentCoordinates"] is not None:
         x, y = current_node["parentCoordinates"]
         parent_node = map_[y][x]
@@ -206,10 +188,10 @@ if __name__ == "__main__":
 
     # --- Simulation Setup -----------------------
     explored_nodes_list = []
-    NUM_OF_ITERATIONS = 100000
+    NUM_OF_ITERATIONS = 10000
     START_POINT = (150, 120)
     GOAL_POINT = (10, 10)
-    GOAL_RADIUS = 5
+    GOAL_RADIUS = 20
     rewiring_radius = 12
 
     color_map = mapping.draw_simple_map()

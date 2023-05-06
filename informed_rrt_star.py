@@ -50,30 +50,32 @@ best_solution - dictionary - Represents a node. {"c2c", "parentCoordinates", "se
 """
 def get_random_point (start_point:tuple, goal_point:tuple, best_solution:dict):
     if best_solution is not None:
+        x_point, y_point = -1, -1
+        # this makes sure the new point is in the bounds of the map
+        while(x_point < 0 or x_point > mapping.X_MAX_SCALED-1 or y_point < 0 or y_point > mapping.X_MAX_SCALED-1):
+            cost_min = distance(start_point, goal_point)
+            cost_max = best_solution["c2c"]
+            semi_major_axis = best_solution["c2c"] / 2
+            semi_minor_axis = math.sqrt(pow(cost_max, 2) - pow(cost_min, 2))/2
+            ellipse_angle = np.arctan2(goal_point[1] - start_point[1], goal_point[0] - start_point[0])
+            center_x = (start_point[0] + goal_point[0])/2
+            center_y = (start_point[1] + goal_point[1])/2
 
-        cost_min = distance(start_point, goal_point)
-        cost_max = best_solution["c2c"]
-        semi_major_axis = best_solution["c2c"] / 2
-        semi_minor_axis = math.sqrt(pow(cost_max, 2) - pow(cost_min, 2))/2
-        ellipse_angle = np.arctan2(goal_point[1] - start_point[1], goal_point[0] - start_point[0])
-        center_x = (start_point[0] + goal_point[0])/2
-        center_y = (start_point[1] + goal_point[1])/2
+            theta_random = 2 * np.pi * np.random.rand()
+            radius_random = np.sqrt(np.random.rand())
+            # Define the rotation matrix for the ellipse
+            cos_angle = np.cos(ellipse_angle)
+            sin_angle = np.sin(ellipse_angle)
+            rot_matrix = np.array([[cos_angle, -sin_angle], [sin_angle, cos_angle]])
 
-        theta_random = 2 * np.pi * np.random.rand()
-        radius_random = np.sqrt(np.random.rand())
-        # Define the rotation matrix for the ellipse
-        cos_angle = np.cos(ellipse_angle)
-        sin_angle = np.sin(ellipse_angle)
-        rot_matrix = np.array([[cos_angle, -sin_angle], [sin_angle, cos_angle]])
-
-        # Rotate the random point using the same rotation matrix
-        rand_point = np.dot(rot_matrix, 
-                             np.array([semi_major_axis * radius_random * np.cos(theta_random), 
-                             semi_minor_axis * radius_random * np.sin(theta_random)]))
-        x_point = rand_point[0] + center_x
-        y_point = rand_point[1] + center_y
-        x_point = int(x_point)
-        y_point = int(y_point)
+            # Rotate the random point using the same rotation matrix
+            rand_point = np.dot(rot_matrix, 
+                                np.array([semi_major_axis * radius_random * np.cos(theta_random), 
+                                semi_minor_axis * radius_random * np.sin(theta_random)]))
+            x_point = rand_point[0] + center_x
+            y_point = rand_point[1] + center_y
+            x_point = int(x_point)
+            y_point = int(y_point)
         return (x_point, y_point)
 
     else:

@@ -153,20 +153,32 @@ def get_neighbor_nodes(pt, radius, explored_nodes):
 """
 Given a new point, and a list of old points, determine lowest cost to come to the new point from the old points
 """
-def bestC2C_to_new(pt, nodes_in_neightborhood):
+def create_new_node(pt, nodes_in_neightborhood):
     temp_queue = []
-    for node in nodes_in_neightborhood:
-        dist = distance(pt, node["selfCoordinates"])
-        tempC2C = dist + node["c2c"]
-        heapq.heappush(temp_queue, (tempC2C, node["selfCoordinates"]))
+    for parent_node in nodes_in_neightborhood:
+        dist = distance(pt, parent_node["selfCoordinates"])
+        c2c = dist + parent_node["c2c"]
+        heapq.heappush(temp_queue, (c2c, parent_node["selfCoordinates"]))
     try:
         while(True):
             heapify(temp_queue)
-            weight, best_neighbor = heapq.heappop(temp_queue)
+            c2c, best_neighbor = heapq.heappop(temp_queue)
             if path_is_good(pt1= pt, pt2= best_neighbor):
-                return best_neighbor, weight
+                new_node = {"c2c": c2c, 
+                            "parentCoordinates": best_neighbor, 
+                            "selfCoordinates": pt, 
+                            "obstacle": False}
+                
+                path = backtrack(new_node, pixel_info_map)
+                debug_count = 0
+                for node in path:
+                    if node["parentCoordinates"] is not None:
+                        debug_count += distance(pt1= node["parentCoordinates"], pt2= node["selfCoordinates"])
+                if debug_count != new_node["c2c"]:
+                    print("gotcha")
+                return new_node
     except IndexError:
-        return(None, None)
+        return None
 
 
 def update_neighborhood(new_node, nodes_in_neightborhood, explored_nodes, pixel_map): 
@@ -215,9 +227,8 @@ def explore(pixel_map:list, explored_nodes:list, start_point:tuple, goal_point:t
             if pixel_map[y][x]["obstacle"] == False:
                 # Find the explored point that is closest to the new point
                 nodes_in_neighborhood = get_neighbor_nodes(new_pt, rewiring_radius, explored_nodes=explored_nodes_list)
-                closest_point, new_node_c2c = bestC2C_to_new(new_pt, nodes_in_neighborhood)
-                if closest_point is not None:
-                    new_node = {"c2c": new_node_c2c, "parentCoordinates": closest_point, "selfCoordinates": new_pt, "obstacle": False}
+                new_node = create_new_node(new_pt, nodes_in_neighborhood)
+                if new_node is not None:
                     explored_nodes.append(new_node)
                     gen_pts_set.add((x, y))  
                     pixel_map[y][x] = new_node
@@ -233,7 +244,6 @@ def explore(pixel_map:list, explored_nodes:list, start_point:tuple, goal_point:t
                     
 
 def backtrack (last_node:dict, map_:list):
-    print("Backtracking...")
     solution_path = []
     current_node = last_node
     solution_path.append(current_node)
@@ -257,8 +267,8 @@ if __name__ == "__main__":
     start_time = time.time()
     explored_nodes_list = []
     NUM_OF_ITERATIONS = 7000
-    START_POINT = (150, 120)
-    GOAL_POINT = (10, 10)
+    START_POINT = (10, 290)
+    GOAL_POINT = (290, 10)
     GOAL_RADIUS = 10
     rewiring_radius = 20
 

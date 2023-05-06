@@ -202,8 +202,8 @@ def get_current_best_solution(solutions, pixel_map):
 def explore(pixel_map:list, explored_nodes:list, start_point:tuple, goal_point:tuple, goal_radius, num_of_iterations:int):
     gen_pts_set = set()
     solutions_set = set()
-    path_found = False
     gen_pts_set.add(start_point)
+    solution_path_list = []
 
     for i in range(0, num_of_iterations):
         best_solution = get_current_best_solution(solutions_set, pixel_map)
@@ -216,9 +216,8 @@ def explore(pixel_map:list, explored_nodes:list, start_point:tuple, goal_point:t
                 closest_point, new_node_c2c = bestC2C_to_new(new_pt, nodes_in_neighborhood)
                 if closest_point is not None:
                     new_node = {"c2c": new_node_c2c, "parentCoordinates": closest_point, "selfCoordinates": new_pt, "obstacle": False}
-                    # new_node = closest_point
                     explored_nodes.append(new_node)
-                    gen_pts_set.add((x, y))  # this was moved down from further up in function.  Move back up?
+                    gen_pts_set.add((x, y))  
                     pixel_map[y][x] = new_node
                     update_neighborhood(new_node, nodes_in_neighborhood, explored_nodes, pixel_map)
                     #rewire_map(updated_neighboring_nodes, explored_nodes=explored_nodes_list, pixel_map = pixel_map)
@@ -226,14 +225,15 @@ def explore(pixel_map:list, explored_nodes:list, start_point:tuple, goal_point:t
                     if distance(pt1= new_pt , pt2= goal_point) < goal_radius:
                         print("solution found...")
                         solutions_set.add(new_pt)
-                        path_found = True
-    return path_found
+                        solution_path_list.append(backtrack(new_node, pixel_map))
+    best_solution = get_current_best_solution(solutions_set, pixel_map)
+    return best_solution
                     
 
-def backtrack (explored_nodes:list, map_:list):
+def backtrack (last_node:dict, map_:list):
     print("Backtracking...")
     solution_path = []
-    current_node = explored_nodes[-1]
+    current_node = last_node
     solution_path.append(current_node)
     
     # (C2G, C2C, TC, point_index, (x,y,theta)parent_coordinates, (x,y,theta)coordinates)
@@ -278,15 +278,15 @@ if __name__ == "__main__":
 
     
     # --- Run the algorithm ---------------------------
-    solution_found = explore(pixel_map= pixel_info_map, \
+    solution = explore(pixel_map= pixel_info_map, \
                              explored_nodes= explored_nodes_list, \
                              start_point=START_POINT,\
                              goal_point=GOAL_POINT,\
                              goal_radius=GOAL_RADIUS, \
                              num_of_iterations= NUM_OF_ITERATIONS)
-    if solution_found == True:
+    if solution is not None:
         print("Number of iterations needed to find solution: " + str(len(explored_nodes_list)))
-        solution = backtrack(explored_nodes= explored_nodes_list, map_= pixel_info_map)
+        solution = backtrack(last_node= solution, map_= pixel_info_map)
     else: 
         print("Solution not found after " + str(NUM_OF_ITERATIONS) + " points checked!")
         exit()

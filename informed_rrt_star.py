@@ -53,8 +53,10 @@ def get_random_point (start_point:tuple, goal_point:tuple, best_solution:dict):
         x_point, y_point = -1, -1
         # this makes sure the new point is in the bounds of the map
         while(x_point < 0 or x_point > mapping.X_MAX_SCALED-1 or y_point < 0 or y_point > mapping.X_MAX_SCALED-1):
-            cost_min = distance(start_point, goal_point)
+            cost_min = distance(start_point, goal_point) - GOAL_RADIUS
+            print("cost min=", cost_min)
             cost_max = best_solution["c2c"]
+            print("cost_max=", cost_max)
             semi_major_axis = best_solution["c2c"] / 2
             semi_minor_axis = math.sqrt(pow(cost_max, 2) - pow(cost_min, 2))/2
             ellipse_angle = np.arctan2(goal_point[1] - start_point[1], goal_point[0] - start_point[0])
@@ -270,7 +272,7 @@ if __name__ == "__main__":
     START_POINT = (10, 290)
     GOAL_POINT = (290, 10)
     GOAL_RADIUS = 10
-    rewiring_radius = 20
+    rewiring_radius = 30
 
     color_map = mapping.draw_simple_map()
     pixel_info_map = create_pixel_info_map(color_map)

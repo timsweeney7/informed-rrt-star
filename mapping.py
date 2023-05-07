@@ -23,44 +23,56 @@ WHITE = (255,255,255)
 X = 0
 Y = 1
 
-# def draw_simple_map():
-#     background_color = WHITE
-#     map = np.zeros((Y_MAX_SCALED, X_MAX_SCALED, 3), np.uint8)
-#     map[:] = background_color
-
-#     # block 1
-#     first_point = (50 * SCALE_FACTOR, 25* SCALE_FACTOR)
-#     second_point = (100* SCALE_FACTOR, 75* SCALE_FACTOR)
-#     cv.rectangle(map, first_point, second_point, BLACK, -1)
-
-#     # block 2
-#     first_point = (20* SCALE_FACTOR, 100* SCALE_FACTOR)
-#     second_point = (35* SCALE_FACTOR, 150* SCALE_FACTOR)
-#     cv.rectangle(map, first_point, second_point, BLACK, -1)
-
-#     # block 3
-#     first_point = (135* SCALE_FACTOR, 140* SCALE_FACTOR)
-#     second_point = (165* SCALE_FACTOR, 190* SCALE_FACTOR)
-#     cv.rectangle(map, first_point, second_point, BLACK, -1)
-
-#     # block 4
-#     first_point = (175* SCALE_FACTOR, 30* SCALE_FACTOR)
-#     second_point = (210* SCALE_FACTOR, 60* SCALE_FACTOR)
-#     cv.rectangle(map, first_point, second_point, BLACK, -1)
-
-#     # block 5
-#     first_point = (250* SCALE_FACTOR, 150* SCALE_FACTOR)
-#     second_point = (275* SCALE_FACTOR, 185* SCALE_FACTOR)
-#     cv.rectangle(map, first_point, second_point, BLACK, -1)
-
-#     # block 6
-#     first_point = (100 * SCALE_FACTOR, 225 * SCALE_FACTOR)
-#     second_point = (200 * SCALE_FACTOR, 270 * SCALE_FACTOR)
-#     cv.rectangle(map, first_point, second_point, BLACK, -1)
-
-#     return map
-
 def draw_simple_map():
+    background_color = WHITE
+    map = np.zeros((Y_MAX_SCALED, X_MAX_SCALED, 3), np.uint8)
+    map[:] = background_color
+
+    # block 1
+    first_point = (125 * SCALE_FACTOR, 125* SCALE_FACTOR)
+    second_point = (175* SCALE_FACTOR, 175* SCALE_FACTOR)
+    cv.rectangle(map, first_point, second_point, BLACK, -1)
+
+    return map
+
+def draw_simple_map1():
+    background_color = WHITE
+    map = np.zeros((Y_MAX_SCALED, X_MAX_SCALED, 3), np.uint8)
+    map[:] = background_color
+
+    # block 1
+    first_point = (50 * SCALE_FACTOR, 25* SCALE_FACTOR)
+    second_point = (100* SCALE_FACTOR, 75* SCALE_FACTOR)
+    cv.rectangle(map, first_point, second_point, BLACK, -1)
+
+    # block 2
+    first_point = (20* SCALE_FACTOR, 100* SCALE_FACTOR)
+    second_point = (35* SCALE_FACTOR, 150* SCALE_FACTOR)
+    cv.rectangle(map, first_point, second_point, BLACK, -1)
+
+    # block 3
+    first_point = (135* SCALE_FACTOR, 140* SCALE_FACTOR)
+    second_point = (165* SCALE_FACTOR, 190* SCALE_FACTOR)
+    cv.rectangle(map, first_point, second_point, BLACK, -1)
+
+    # block 4
+    first_point = (175* SCALE_FACTOR, 30* SCALE_FACTOR)
+    second_point = (210* SCALE_FACTOR, 60* SCALE_FACTOR)
+    cv.rectangle(map, first_point, second_point, BLACK, -1)
+
+    # block 5
+    first_point = (250* SCALE_FACTOR, 150* SCALE_FACTOR)
+    second_point = (275* SCALE_FACTOR, 185* SCALE_FACTOR)
+    cv.rectangle(map, first_point, second_point, BLACK, -1)
+
+    # block 6
+    first_point = (100 * SCALE_FACTOR, 225 * SCALE_FACTOR)
+    second_point = (200 * SCALE_FACTOR, 270 * SCALE_FACTOR)
+    cv.rectangle(map, first_point, second_point, BLACK, -1)
+
+    return map
+
+def draw_simple_map2():
     background_color = WHITE
     map = np.zeros((Y_MAX_SCALED, X_MAX_SCALED, 3), np.uint8)
     map[:] = background_color
@@ -74,26 +86,6 @@ def draw_simple_map():
     first_point = (125* SCALE_FACTOR, 151* SCALE_FACTOR)
     second_point = (175* SCALE_FACTOR, 200* SCALE_FACTOR)
     cv.rectangle(map, first_point, second_point, BLACK, -1)
-
-    # # block 3
-    # first_point = (135* SCALE_FACTOR, 140* SCALE_FACTOR)
-    # second_point = (165* SCALE_FACTOR, 190* SCALE_FACTOR)
-    # cv.rectangle(map, first_point, second_point, BLACK, -1)
-
-    # # block 4
-    # first_point = (175* SCALE_FACTOR, 30* SCALE_FACTOR)
-    # second_point = (210* SCALE_FACTOR, 60* SCALE_FACTOR)
-    # cv.rectangle(map, first_point, second_point, BLACK, -1)
-
-    # # block 5
-    # first_point = (250* SCALE_FACTOR, 150* SCALE_FACTOR)
-    # second_point = (275* SCALE_FACTOR, 185* SCALE_FACTOR)
-    # cv.rectangle(map, first_point, second_point, BLACK, -1)
-
-    # # block 6
-    # first_point = (100 * SCALE_FACTOR, 225 * SCALE_FACTOR)
-    # second_point = (200 * SCALE_FACTOR, 270 * SCALE_FACTOR)
-    # cv.rectangle(map, first_point, second_point, BLACK, -1)
 
     return map
 

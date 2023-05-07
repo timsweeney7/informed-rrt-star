@@ -81,11 +81,11 @@ def draw_simple_map2():
 
     # block 1
     first_point = ((Half_X_Max-25) * SCALE_FACTOR, (Half_Y_Max-50) * SCALE_FACTOR)
-    second_point = ((Half_X_Max+25) * SCALE_FACTOR, (Half_Y_Max-3) * SCALE_FACTOR)
+    second_point = ((Half_X_Max+25) * SCALE_FACTOR, (Half_Y_Max-1) * SCALE_FACTOR)
     cv.rectangle(map, first_point, second_point, BLACK, -1)
 
     # block 2
-    first_point = ((Half_X_Max-25), (Half_Y_Max+3)* SCALE_FACTOR)
+    first_point = ((Half_X_Max-25), (Half_Y_Max+1)* SCALE_FACTOR)
     second_point = ((Half_X_Max+25), (Half_Y_Max+50)* SCALE_FACTOR)
     cv.rectangle(map, first_point, second_point, BLACK, -1)
 

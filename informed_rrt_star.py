@@ -53,10 +53,10 @@ def get_random_point (start_point:tuple, goal_point:tuple, best_solution:dict):
         x_point, y_point = -1, -1
         # this makes sure the new point is in the bounds of the map
         cost_min = distance(start_point, goal_point) - GOAL_RADIUS
-        print("cost min=", cost_min)
+        # print("cost min=", cost_min)
         cost_max = best_solution["c2c"]
-        print("cost_max=", cost_max)
-        print("cbest=", cost_min/cost_max)
+        # print("cost_max=", cost_max)
+        # print("cbest=", cost_min/cost_max)
         while (cost_min/cost_max < cbest) :
             while(x_point < 0 or x_point > mapping.X_MAX_SCALED-1 or y_point < 0 or y_point > mapping.X_MAX_SCALED-1):
                 cost_min = distance(start_point, goal_point) - GOAL_RADIUS
@@ -86,6 +86,13 @@ def get_random_point (start_point:tuple, goal_point:tuple, best_solution:dict):
                 y_point = int(y_point)
         
             return (x_point, y_point)
+        with open('output.txt', 'w') as f:
+            print("cost min:", cost_min)
+            print("cost_max:", cost_max)
+            print("cbest:", cost_min/cost_max)
+            write_data_to_file("cost min:" + str(cost_min))
+            write_data_to_file("cost_max:" + str(cost_max))
+            write_data_to_file("cbest:" + str(cost_min/cost_max))
         return(None)
 
     else:
@@ -250,7 +257,7 @@ def explore(pixel_map:list, explored_nodes:list, start_point:tuple, goal_point:t
                     update_neighborhood(new_node, nodes_in_neighborhood, explored_nodes, pixel_map)
                     
                     if distance(pt1= new_pt , pt2= goal_point) < goal_radius:
-                        print("solution found...")
+                        # print("solution found...")
                         solutions_set.add(new_pt)
                         solution_path_list.append(backtrack(new_node, pixel_map))
     best_solution = get_current_best_solution(solutions_set, pixel_map)
@@ -272,10 +279,12 @@ def backtrack (last_node:dict, map_:list):
     solution_path.reverse()
     return solution_path 
 
-
+def write_data_to_file(data):
+    with open('output.txt', 'a') as f:
+        f.write(data + '\n')
 
 if __name__ == "__main__":
-    print()
+    # print("starting search...")
 
     # --- Simulation Setup -----------------------
     X_MAX = mapping.X_MAX
@@ -285,10 +294,10 @@ if __name__ == "__main__":
     NUM_OF_ITERATIONS = 50000
     START_POINT = (int(X_MAX/2 - 50), int(Y_MAX/2))
     GOAL_POINT = (int(X_MAX/2 + 50),int (Y_MAX/2))
-    GOAL_RADIUS = 5
+    GOAL_RADIUS = 8
     rewiring_radius = 20
-    cbest = .79
-    time_limit = 15
+    cbest = .765
+    time_limit = 1000
 
     color_map = mapping.draw_simple_map()
     pixel_info_map = create_pixel_info_map(color_map)
@@ -317,37 +326,38 @@ if __name__ == "__main__":
     if solution is not None:
         print("Number of iterations needed to find solution: " + str(len(explored_nodes_list)))
         solution = backtrack(last_node= solution, map_= pixel_info_map)
-    else: 
-        print("Solution not found after " + str(NUM_OF_ITERATIONS) + " points checked!")
-        exit()
+    # else: 
+    #     print("Solution not found after " + str(NUM_OF_ITERATIONS) + " points checked!")
+    #     exit()
     end_time = time.time()
-    print("Solution found after %s seconds." % (end_time - start_time))
-
+    with open('output.txt', 'a') as f:
+        print("Solution found after (seconds):", (end_time - start_time))
+        write_data_to_file("Solution found after(seconds):" + str(end_time - start_time))
 
     #--- Display results ----------------------------
 
-    for i in explored_nodes_list:
-        mapping.draw_node(child_coordinates=i["selfCoordinates"], \
-                          parent_coordinates=i["parentCoordinates"], \
-                          map= color_map, color= mapping.BLUE)
-    cv.imshow('informed RRT* Algorithm', color_map)
-    cv.waitKey(0)
+    # for i in explored_nodes_list:
+    #     mapping.draw_node(child_coordinates=i["selfCoordinates"], \
+    #                       parent_coordinates=i["parentCoordinates"], \
+    #                       map= color_map, color= mapping.BLUE)
+    # cv.imshow('informed RRT* Algorithm', color_map)
+    # cv.waitKey(0)
 
-    cv.circle(color_map, GOAL_POINT, radius=GOAL_RADIUS, color=mapping.GRAY, thickness=-1)
+    # cv.circle(color_map, GOAL_POINT, radius=GOAL_RADIUS, color=mapping.GRAY, thickness=-1)
 
-    for i in solution:
-        mapping.draw_node(child_coordinates=i["selfCoordinates"], \
-                          parent_coordinates=i["parentCoordinates"], \
-                          map= color_map, color= mapping.RED)
-        cv.imshow('informed RRT* Algorithm', color_map)
-        cv.waitKey(0)
+    # for i in solution:
+    #     mapping.draw_node(child_coordinates=i["selfCoordinates"], \
+    #                       parent_coordinates=i["parentCoordinates"], \
+    #                       map= color_map, color= mapping.RED)
+    #     cv.imshow('informed RRT* Algorithm', color_map)
+    #     cv.waitKey(0)
                         
-    end_point = solution[-1]
-    mapping.draw_node(child_coordinates=i["selfCoordinates"], \
-                      parent_coordinates= None, \
-                      map= color_map, color= mapping.GREEN)
-    cv.imshow('informed RRT* Algorithm', color_map)
-    cv.waitKey(0)
+    # end_point = solution[-1]
+    # mapping.draw_node(child_coordinates=i["selfCoordinates"], \
+    #                   parent_coordinates= None, \
+    #                   map= color_map, color= mapping.GREEN)
+    # cv.imshow('informed RRT* Algorithm', color_map)
+    # cv.waitKey(0)
 
     print("Explored_nodes_matrix:", len(explored_nodes_list))
     print()

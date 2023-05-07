@@ -52,33 +52,41 @@ def get_random_point (start_point:tuple, goal_point:tuple, best_solution:dict):
     if best_solution is not None:
         x_point, y_point = -1, -1
         # this makes sure the new point is in the bounds of the map
-        while(x_point < 0 or x_point > mapping.X_MAX_SCALED-1 or y_point < 0 or y_point > mapping.X_MAX_SCALED-1):
-            cost_min = distance(start_point, goal_point) - GOAL_RADIUS
-            print("cost min=", cost_min)
-            cost_max = best_solution["c2c"]
-            print("cost_max=", cost_max)
-            semi_major_axis = best_solution["c2c"] / 2
-            semi_minor_axis = math.sqrt(pow(cost_max, 2) - pow(cost_min, 2))/2
-            ellipse_angle = np.arctan2(goal_point[1] - start_point[1], goal_point[0] - start_point[0])
-            center_x = (start_point[0] + goal_point[0])/2
-            center_y = (start_point[1] + goal_point[1])/2
+        cost_min = distance(start_point, goal_point) - GOAL_RADIUS
+        print("cost min=", cost_min)
+        cost_max = best_solution["c2c"]
+        print("cost_max=", cost_max)
+        print("cbest=", cost_min/cost_max)
+        while (cost_min/cost_max < cbest) :
+            while(x_point < 0 or x_point > mapping.X_MAX_SCALED-1 or y_point < 0 or y_point > mapping.X_MAX_SCALED-1):
+                cost_min = distance(start_point, goal_point) - GOAL_RADIUS
+                # print("cost min=", cost_min)
+                cost_max = best_solution["c2c"]
+                # print("cost_max=", cost_max)
+                semi_major_axis = best_solution["c2c"] / 2
+                semi_minor_axis = math.sqrt(pow(cost_max, 2) - pow(cost_min, 2))/2
+                ellipse_angle = np.arctan2(goal_point[1] - start_point[1], goal_point[0] - start_point[0])
+                center_x = (start_point[0] + goal_point[0])/2
+                center_y = (start_point[1] + goal_point[1])/2
 
-            theta_random = 2 * np.pi * np.random.rand()
-            radius_random = np.sqrt(np.random.rand())
-            # Define the rotation matrix for the ellipse
-            cos_angle = np.cos(ellipse_angle)
-            sin_angle = np.sin(ellipse_angle)
-            rot_matrix = np.array([[cos_angle, -sin_angle], [sin_angle, cos_angle]])
+                theta_random = 2 * np.pi * np.random.rand()
+                radius_random = np.sqrt(np.random.rand())
+                # Define the rotation matrix for the ellipse
+                cos_angle = np.cos(ellipse_angle)
+                sin_angle = np.sin(ellipse_angle)
+                rot_matrix = np.array([[cos_angle, -sin_angle], [sin_angle, cos_angle]])
 
-            # Rotate the random point using the same rotation matrix
-            rand_point = np.dot(rot_matrix, 
-                                np.array([semi_major_axis * radius_random * np.cos(theta_random), 
-                                semi_minor_axis * radius_random * np.sin(theta_random)]))
-            x_point = rand_point[0] + center_x
-            y_point = rand_point[1] + center_y
-            x_point = int(x_point)
-            y_point = int(y_point)
-        return (x_point, y_point)
+                # Rotate the random point using the same rotation matrix
+                rand_point = np.dot(rot_matrix, 
+                                    np.array([semi_major_axis * radius_random * np.cos(theta_random), 
+                                    semi_minor_axis * radius_random * np.sin(theta_random)]))
+                x_point = rand_point[0] + center_x
+                y_point = rand_point[1] + center_y
+                x_point = int(x_point)
+                y_point = int(y_point)
+        
+            return (x_point, y_point)
+        return(None)
 
     else:
         # generate a random point in the bounds of the map
@@ -176,8 +184,8 @@ def create_new_node(pt, nodes_in_neightborhood):
                 for node in path:
                     if node["parentCoordinates"] is not None:
                         debug_count += distance(pt1= node["parentCoordinates"], pt2= node["selfCoordinates"])
-                if debug_count != new_node["c2c"]:
-                    print("gotcha")
+                # if debug_count != new_node["c2c"]:
+                #     # print("gotcha")
                 return new_node
     except IndexError:
         return None
@@ -224,6 +232,8 @@ def explore(pixel_map:list, explored_nodes:list, start_point:tuple, goal_point:t
     for i in range(0, num_of_iterations):
         best_solution = get_current_best_solution(solutions_set, pixel_map)
         new_pt = get_random_point(start_point, goal_point, best_solution)
+        if new_pt is None:
+            break
         x, y = new_pt
         if new_pt not in gen_pts_set:
             if pixel_map[y][x]["obstacle"] == False:
@@ -256,7 +266,7 @@ def backtrack (last_node:dict, map_:list):
         parent_node = map_[y][x]
         current_node = parent_node
         solution_path.append(parent_node)
-
+ 
     solution_path.reverse()
     return solution_path 
 
@@ -268,11 +278,12 @@ if __name__ == "__main__":
     # --- Simulation Setup -----------------------
     start_time = time.time()
     explored_nodes_list = []
-    NUM_OF_ITERATIONS = 7000
-    START_POINT = (10, 290)
-    GOAL_POINT = (290, 10)
-    GOAL_RADIUS = 10
+    NUM_OF_ITERATIONS = 10000
+    START_POINT = (90, 150)
+    GOAL_POINT = (210, 150)
+    GOAL_RADIUS = 5
     rewiring_radius = 30
+    cbest = .98
 
     color_map = mapping.draw_simple_map()
     pixel_info_map = create_pixel_info_map(color_map)

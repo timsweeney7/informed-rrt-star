@@ -41,18 +41,40 @@ def create_pixel_info_map(color_map):
     return pixel_info_map
 
 
-def get_random_point ():
-    # generate a random x coordinate within the limit
-    x_coord = random.randint(0, mapping.X_MAX_SCALED-1)
-    # generate a random y coordinate within the limit
-    y_coord = random.randint(0, mapping.Y_MAX_SCALED-1)
-    rand_pt = (x_coord, y_coord)
-    return rand_pt
-    
+"""
+gets a random point in the elipse from start point to end point
+start_point - tuple - (x, y)
+goal_point - tuple - (x, y)
+best_solution - dictionary - Represents a node. {"c2c", "parentCoordinates", "selfCoordinates", "obstacle"}
+                             Will be 'None' if no solution has been found yet
+"""
+def get_random_point (start_point:tuple, goal_point:tuple, best_solution:dict):
+    if best_solution is not None:
+        x_point, y_point = -1, -1
+        # this makes sure the new point is in the bounds of the map
+        cost_min = distance(start_point, goal_point) - GOAL_RADIUS
+        print("cost min=", cost_min)
+        cost_max = best_solution["c2c"]
+        print("cost_max=", cost_max)
+        print("cbest=", cost_min/cost_max)
+        while (cost_min/cost_max < cbest) :
+            while(x_point < 0 or x_point > mapping.X_MAX_SCALED-1 or y_point < 0 or y_point > mapping.X_MAX_SCALED-1):
+                x_point = np.random.randint(0, mapping.X_MAX_SCALED)
+                y_point = np.random.randint(0, mapping.Y_MAX_SCALED)
+            return (x_point, y_point)
+        return(None)
+
+    else:
+        # generate a random point in the bounds of the map
+        x_coord = random.randint(0, mapping.X_MAX_SCALED-1)
+        y_coord = random.randint(0, mapping.Y_MAX_SCALED-1)
+        rand_pt = (x_coord, y_coord)
+        return rand_pt
+
 
 def distance (pt1, pt2): 
-    distance = round(math.sqrt(pow(pt2[0] - pt1[0], 2) + pow(pt2[1] - pt1[1], 2)))
-    return distance
+        distance = math.sqrt(pow(pt2[0] - pt1[0], 2) + pow(pt2[1] - pt1[1], 2))
+        return distance
 
 
 def path_is_good(pt1, pt2):
@@ -99,16 +121,17 @@ def get_points_in_neighborhood(pt, radius):
         for j in range(y - radius, y + radius + 1):
             if math.sqrt((i - x) ** 2 + (j - y) ** 2) <= radius:
                 points.add((i, j))
+    points.remove((x,y))
     return points
 
 """
 gets all of the points in a given radius that have been previously explored
 """
-def check_neighborhood(pt, radius, explored_nodes): 
+def get_neighbor_nodes(pt, radius, explored_nodes): 
     neighborhood = get_points_in_neighborhood(pt,radius)
     nodes_in_neighborhood = []
     for node in explored_nodes: 
-        if (node["selfCoordinates"][0], node["selfCoordinates"][1]) in neighborhood:
+        if node["selfCoordinates"] in neighborhood:
             nodes_in_neighborhood.append(node)
     return nodes_in_neighborhood
 
@@ -116,74 +139,101 @@ def check_neighborhood(pt, radius, explored_nodes):
 """
 Given a new point, and a list of old points, determine lowest cost to come to the new point from the old points
 """
-def bestC2C_to_new(pt, nodes_in_neightborhood):
+def create_new_node(pt, nodes_in_neightborhood):
     temp_queue = []
-    for node in nodes_in_neightborhood:
-        # print(node)
-        dist = distance(pt, node["selfCoordinates"])
-        tempC2C = dist + node["c2c"]
-        # temp_node = (tempC2C, node)
-        # temp_node = {"c2c": tempC2C, "parentCoordinates": node["selfCoordinates"], "selfCoordinates": pt, "obstacle": False}
-        heapq.heappush(temp_queue, (tempC2C, node["selfCoordinates"]))
+    for parent_node in nodes_in_neightborhood:
+        dist = distance(pt, parent_node["selfCoordinates"])
+        c2c = dist + parent_node["c2c"]
+        heapq.heappush(temp_queue, (c2c, parent_node["selfCoordinates"]))
     try:
         while(True):
             heapify(temp_queue)
-            weight, closest_neighbor = heapq.heappop(temp_queue)
-            if path_is_good(pt1= pt, pt2= closest_neighbor):
-                return closest_neighbor, weight
+            c2c, best_neighbor = heapq.heappop(temp_queue)
+            if path_is_good(pt1= pt, pt2= best_neighbor):
+                new_node = {"c2c": c2c, 
+                            "parentCoordinates": best_neighbor, 
+                            "selfCoordinates": pt, 
+                            "obstacle": False}
+                
+                path = backtrack(new_node, pixel_info_map)
+                debug_count = 0
+                for node in path:
+                    if node["parentCoordinates"] is not None:
+                        debug_count += distance(pt1= node["parentCoordinates"], pt2= node["selfCoordinates"])
+                # if debug_count != new_node["c2c"]:
+                #     # print("gotcha")
+                return new_node
     except IndexError:
-        return(None)
+        return None
 
 
-def update_neighborhood(new_node, nodes_in_neightborhood): 
-    updated_neighboring_nodes = []
-    for nodes in nodes_in_neightborhood: 
-        dist = distance(pt1=(new_node["selfCoordinates"][0], new_node["selfCoordinates"][1]), pt2=(nodes["selfCoordinates"][0], nodes["selfCoordinates"][1]))
+def update_neighborhood(new_node, nodes_in_neightborhood, explored_nodes, pixel_map): 
+    for node in nodes_in_neightborhood:
+        dist = distance(pt1= new_node["selfCoordinates"], pt2=node ["selfCoordinates"])
         tempC2C = dist + new_node["c2c"]
-        if tempC2C < nodes["c2c"]: 
-            if path_is_good(pt1=new_node["selfCoordinates"], pt2=nodes["selfCoordinates"]):
-                updated_neighbor = {"c2c": tempC2C, "parentCoordinates": new_node["selfCoordinates"], "selfCoordinates": nodes["selfCoordinates"], "obstacle": False}
-                updated_neighboring_nodes.append(updated_neighbor)
-    return updated_neighboring_nodes
+        if tempC2C < node["c2c"]: 
+            if path_is_good(pt1=new_node["selfCoordinates"], pt2=node["selfCoordinates"]):
+                updated_neighbor = {"c2c": tempC2C, 
+                                    "parentCoordinates": new_node["selfCoordinates"], 
+                                    "selfCoordinates": node["selfCoordinates"], 
+                                    "obstacle": False}
+                for explored_node in explored_nodes:
+                    if updated_neighbor["selfCoordinates"] == explored_node["selfCoordinates"]:
+                        explored_node["c2c"] = updated_neighbor["c2c"]
+                        explored_node["parentCoordinates"] = updated_neighbor["parentCoordinates"]
+                        x, y = explored_node["selfCoordinates"]
+                        pixel_map[y][x] = explored_node
 
-def rewire_map(updated_neighboring_nodes, explored_nodes):
-    for i, node in enumerate(updated_neighboring_nodes):
-        for explored_node in explored_nodes:
-            if (node["selfCoordinates"][0], node["selfCoordinates"][1]) == (explored_node["selfCoordinates"][0], explored_node["selfCoordinates"][1]):
-                explored_node["c2c"] = node["c2c"]
-                explored_node["parentCoordinates"] = node["parentCoordinates"]
-    return explored_nodes
-    
 
-def explore(pixel_map:list, explored_nodes:list, goal_point:tuple, goal_radius, num_of_iterations:int):
+"""
+checks the list of solutions and determines which one has the lowest c2c
+"""
+def get_current_best_solution(solutions, pixel_map):
+    min_cost = float('inf')
+    best_node = None
+    for point in solutions:
+        x, y = point
+        node = pixel_map[y][x]
+        if node["c2c"] < min_cost:
+            best_node = node
+    return best_node
+
+
+def explore(pixel_map:list, explored_nodes:list, start_point:tuple, goal_point:tuple, goal_radius, num_of_iterations:int):
     gen_pts_set = set()
+    solutions_set = set()
+    gen_pts_set.add(start_point)
+    solution_path_list = []
+
     for i in range(0, num_of_iterations):
-        new_pt = get_random_point()
-        x, y = new_pt 
+        best_solution = get_current_best_solution(solutions_set, pixel_map)
+        new_pt = get_random_point(start_point, goal_point, best_solution)
+        if new_pt is None:
+            break
+        x, y = new_pt
         if new_pt not in gen_pts_set:
-            gen_pts_set.add((new_pt[0], new_pt[1]))
             if pixel_map[y][x]["obstacle"] == False:
                 # Find the explored point that is closest to the new point
-                nodes_in_neighborhood = check_neighborhood(new_pt, rewiring_radius, explored_nodes=explored_nodes_list)
-                closest_point = bestC2C_to_new(new_pt, nodes_in_neighborhood)
-                if closest_point is not None:
-                    new_node = {"c2c": closest_point[1], "parentCoordinates": closest_point[0], "selfCoordinates": new_pt, "obstacle": False}
-                    # new_node = closest_point
+                nodes_in_neighborhood = get_neighbor_nodes(new_pt, rewiring_radius, explored_nodes=explored_nodes_list)
+                new_node = create_new_node(new_pt, nodes_in_neighborhood)
+                if new_node is not None:
                     explored_nodes.append(new_node)
+                    gen_pts_set.add((x, y))  
                     pixel_map[y][x] = new_node
-                    updated_neighboring_nodes = update_neighborhood(new_node, nodes_in_neighborhood)
-                    rewire_map(updated_neighboring_nodes, explored_nodes=explored_nodes_list)
+                    update_neighborhood(new_node, nodes_in_neighborhood, explored_nodes, pixel_map)
+                    #rewire_map(updated_neighboring_nodes, explored_nodes=explored_nodes_list, pixel_map = pixel_map)
                     
                     if distance(pt1= new_pt , pt2= goal_point) < goal_radius:
-                        return True  # return 0 if a solution is found
-    # return 1 if no solution is found
-    return False
+                        print("solution found...")
+                        solutions_set.add(new_pt)
+                        solution_path_list.append(backtrack(new_node, pixel_map))
+    best_solution = get_current_best_solution(solutions_set, pixel_map)
+    return best_solution
                     
 
-def backtrack (explored_nodes:list, map_:list):
-    print("Backtracking...")
+def backtrack (last_node:dict, map_:list):
     solution_path = []
-    current_node = explored_nodes[-1]
+    current_node = last_node
     solution_path.append(current_node)
     
     # (C2G, C2C, TC, point_index, (x,y,theta)parent_coordinates, (x,y,theta)coordinates)
@@ -204,11 +254,13 @@ if __name__ == "__main__":
     # --- Simulation Setup -----------------------
     start_time = time.time()
     explored_nodes_list = []
-    NUM_OF_ITERATIONS = 100000
-    START_POINT = (150, 120)
-    GOAL_POINT = (10, 10)
+    NUM_OF_ITERATIONS = 10000
+    START_POINT = (90, 150)
+    GOAL_POINT = (210, 150)
     GOAL_RADIUS = 5
-    rewiring_radius = 12
+    rewiring_radius = 30
+    cbest = .95 
+    time_limit = 5
 
     color_map = mapping.draw_simple_map()
     pixel_info_map = create_pixel_info_map(color_map)
@@ -227,20 +279,22 @@ if __name__ == "__main__":
     pixel_info_map[starting_node["selfCoordinates"][1]] [starting_node["selfCoordinates"][0]] = starting_node
 
     
-    # --- Run the algorithm ---------------------------
-    solution_found = explore(pixel_map= pixel_info_map, \
+    # --- Run the algorithm without a time limit ---------------------------
+    solution = explore(pixel_map= pixel_info_map, \
                              explored_nodes= explored_nodes_list, \
+                             start_point=START_POINT,\
                              goal_point=GOAL_POINT,\
                              goal_radius=GOAL_RADIUS, \
                              num_of_iterations= NUM_OF_ITERATIONS)
-    if solution_found == True:
+    if solution is not None:
         print("Number of iterations needed to find solution: " + str(len(explored_nodes_list)))
-        solution = backtrack(explored_nodes= explored_nodes_list, map_= pixel_info_map)
+        solution = backtrack(last_node= solution, map_= pixel_info_map)
     else: 
         print("Solution not found after " + str(NUM_OF_ITERATIONS) + " points checked!")
         exit()
     end_time = time.time()
     print("Solution found after %s seconds." % (end_time - start_time))
+
 
     #--- Display results ----------------------------
 

@@ -1,6 +1,6 @@
 """
 code based on this paper:
-https://arxiv.org/pdf/1105.1186.pdf
+https://arxiv.org/pdf/1404.2334.pdf
 """
 
 # rrt_star.py

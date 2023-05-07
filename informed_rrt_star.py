@@ -1,6 +1,6 @@
 """
 code based on this paper:
-https://arxiv.org/pdf/1105.1186.pdf
+https://arxiv.org/pdf/1404.2334.pdf
 """
 
 # rrt_star.py
@@ -228,8 +228,11 @@ def explore(pixel_map:list, explored_nodes:list, start_point:tuple, goal_point:t
     solutions_set = set()
     gen_pts_set.add(start_point)
     solution_path_list = []
+    start_time = time.time()
 
     for i in range(0, num_of_iterations):
+        if time.time() - start_time >= time_limit:
+            break  # time limit reached, break out of the loop
         best_solution = get_current_best_solution(solutions_set, pixel_map)
         new_pt = get_random_point(start_point, goal_point, best_solution)
         if new_pt is None:
@@ -245,7 +248,6 @@ def explore(pixel_map:list, explored_nodes:list, start_point:tuple, goal_point:t
                     gen_pts_set.add((x, y))  
                     pixel_map[y][x] = new_node
                     update_neighborhood(new_node, nodes_in_neighborhood, explored_nodes, pixel_map)
-                    #rewire_map(updated_neighboring_nodes, explored_nodes=explored_nodes_list, pixel_map = pixel_map)
                     
                     if distance(pt1= new_pt , pt2= goal_point) < goal_radius:
                         print("solution found...")
@@ -283,7 +285,8 @@ if __name__ == "__main__":
     GOAL_POINT = (210, 150)
     GOAL_RADIUS = 5
     rewiring_radius = 30
-    cbest = .98
+    cbest = .84
+    time_limit = 5
 
     color_map = mapping.draw_simple_map()
     pixel_info_map = create_pixel_info_map(color_map)

@@ -265,9 +265,9 @@ if __name__ == "__main__":
     GOAL_RADIUS = 5
     rewiring_radius = 30
     cbest = .84 
-    time_limit = 5
+    time_limit = 15
 
-    color_map = mapping.draw_simple_map()
+    color_map = mapping.draw_simple_map2()
     pixel_info_map = create_pixel_info_map(color_map)
     
     if( not mapping.point_is_valid(color_map=color_map, coordinates=START_POINT)):

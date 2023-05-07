@@ -9,6 +9,8 @@ Y_MAX = 300
 SCALE_FACTOR = 1
 X_MAX_SCALED = X_MAX * SCALE_FACTOR
 Y_MAX_SCALED = Y_MAX * SCALE_FACTOR
+Half_X_Max = int(X_MAX/2)
+Half_Y_Max = int(Y_MAX/2)
 
 BLUE = (255, 0, 0)
 DARK_GREEN = (15, 168, 33)
@@ -29,8 +31,8 @@ def draw_simple_map():
     map[:] = background_color
 
     # block 1
-    first_point = (125 * SCALE_FACTOR, 125* SCALE_FACTOR)
-    second_point = (175* SCALE_FACTOR, 175* SCALE_FACTOR)
+    first_point = ((Half_X_Max-25) * SCALE_FACTOR, (Half_Y_Max-25)* SCALE_FACTOR)
+    second_point = ((Half_X_Max+25), (Half_Y_Max+25)* SCALE_FACTOR)
     cv.rectangle(map, first_point, second_point, BLACK, -1)
 
     return map
@@ -78,13 +80,13 @@ def draw_simple_map2():
     map[:] = background_color
 
     # block 1
-    first_point = (125 * SCALE_FACTOR, 100* SCALE_FACTOR)
-    second_point = (175* SCALE_FACTOR, 149* SCALE_FACTOR)
+    first_point = ((Half_X_Max-25) * SCALE_FACTOR, (Half_Y_Max-50) * SCALE_FACTOR)
+    second_point = ((Half_X_Max+25) * SCALE_FACTOR, (Half_Y_Max-3) * SCALE_FACTOR)
     cv.rectangle(map, first_point, second_point, BLACK, -1)
 
     # block 2
-    first_point = (125* SCALE_FACTOR, 151* SCALE_FACTOR)
-    second_point = (175* SCALE_FACTOR, 200* SCALE_FACTOR)
+    first_point = ((Half_X_Max-25), (Half_Y_Max+3)* SCALE_FACTOR)
+    second_point = ((Half_X_Max+25), (Half_Y_Max+50)* SCALE_FACTOR)
     cv.rectangle(map, first_point, second_point, BLACK, -1)
 
     return map
@@ -165,6 +167,6 @@ def draw_node(child_coordinates, parent_coordinates, map, color):
 
 
 if __name__ == "__main__":
-    color_map = draw_simple_map()
+    color_map = draw_simple_map2()
     cv.imshow('Informed RRT* Algorith', color_map)
     cv.waitKey(0)

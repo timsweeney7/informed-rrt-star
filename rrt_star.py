@@ -257,17 +257,19 @@ if __name__ == "__main__":
     print()
 
     # --- Simulation Setup -----------------------
+    X_MAX = mapping.X_MAX
+    Y_MAX = mapping.Y_MAX
     start_time = time.time()
     explored_nodes_list = []
-    NUM_OF_ITERATIONS = 10000
-    START_POINT = (90, 150)
-    GOAL_POINT = (210, 150)
+    NUM_OF_ITERATIONS = 50000
+    START_POINT = (int(X_MAX/2 - 50), int(Y_MAX/2))
+    GOAL_POINT = (int(X_MAX/2 + 50),int (Y_MAX/2))
     GOAL_RADIUS = 5
-    rewiring_radius = 30
-    cbest = .84 
+    rewiring_radius = 20
+    cbest = .79
     time_limit = 15
 
-    color_map = mapping.draw_simple_map2()
+    color_map = mapping.draw_simple_map()
     pixel_info_map = create_pixel_info_map(color_map)
     
     if( not mapping.point_is_valid(color_map=color_map, coordinates=START_POINT)):

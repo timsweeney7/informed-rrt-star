@@ -1,0 +1,3 @@
+,cost min,cost_max,cbest,Number of iterations needed to find solution,Solution found after (seconds),Explored_nodes_matrix
+Run 1,95.0,126.00797262636038,0.7539205497869138,8159,28.576534271240234,8159
+Run 2,95.0,124.01194141516994,0.7660552598072542,5833,16.44441056251526,5833

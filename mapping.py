@@ -4,8 +4,8 @@ import random
 
 
 # map dimensions
-X_MAX = 300
-Y_MAX = 300
+X_MAX = 400
+Y_MAX = 400
 SCALE_FACTOR = 1
 X_MAX_SCALED = X_MAX * SCALE_FACTOR
 Y_MAX_SCALED = Y_MAX * SCALE_FACTOR

@@ -3,12 +3,12 @@ import os
 
 # Define the number of runs and the output file name
 num_runs = 20    
-output_file = "combined_output_informed_rrt_star.csv"
+output_file = "combined_output_rrt_star.csv"
 
 # Run the code
 outputs = []
 for i in range(num_runs):
-    os.system(f"python3 informed_rrt_star.py > output_{i+1}.txt")
+    os.system(f"python3 rrt_star.py > output_{i+1}.txt")
     with open(f"output_{i+1}.txt", "r") as f:
         output = f.readlines()
         outputs.append(output)

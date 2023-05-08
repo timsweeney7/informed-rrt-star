@@ -299,7 +299,7 @@ if __name__ == "__main__":
     cbest = .765
     time_limit = 1000
 
-    color_map = mapping.draw_simple_map()
+    color_map = mapping.draw_simple_map1()
     pixel_info_map = create_pixel_info_map(color_map)
     
     if( not mapping.point_is_valid(color_map=color_map, coordinates=START_POINT)):
@@ -336,28 +336,28 @@ if __name__ == "__main__":
 
     #--- Display results ----------------------------
 
-    # for i in explored_nodes_list:
-    #     mapping.draw_node(child_coordinates=i["selfCoordinates"], \
-    #                       parent_coordinates=i["parentCoordinates"], \
-    #                       map= color_map, color= mapping.BLUE)
-    # cv.imshow('informed RRT* Algorithm', color_map)
-    # cv.waitKey(0)
+    for i in explored_nodes_list:
+        mapping.draw_node(child_coordinates=i["selfCoordinates"], \
+                          parent_coordinates=i["parentCoordinates"], \
+                          map= color_map, color= mapping.BLUE)
+    cv.imshow('informed RRT* Algorithm', color_map)
+    cv.waitKey(0)
 
-    # cv.circle(color_map, GOAL_POINT, radius=GOAL_RADIUS, color=mapping.GRAY, thickness=-1)
+    cv.circle(color_map, GOAL_POINT, radius=GOAL_RADIUS, color=mapping.GRAY, thickness=-1)
 
-    # for i in solution:
-    #     mapping.draw_node(child_coordinates=i["selfCoordinates"], \
-    #                       parent_coordinates=i["parentCoordinates"], \
-    #                       map= color_map, color= mapping.RED)
-    #     cv.imshow('informed RRT* Algorithm', color_map)
-    #     cv.waitKey(0)
+    for i in solution:
+        mapping.draw_node(child_coordinates=i["selfCoordinates"], \
+                          parent_coordinates=i["parentCoordinates"], \
+                          map= color_map, color= mapping.RED)
+        cv.imshow('informed RRT* Algorithm', color_map)
+        cv.waitKey(0)
                         
-    # end_point = solution[-1]
-    # mapping.draw_node(child_coordinates=i["selfCoordinates"], \
-    #                   parent_coordinates= None, \
-    #                   map= color_map, color= mapping.GREEN)
-    # cv.imshow('informed RRT* Algorithm', color_map)
-    # cv.waitKey(0)
+    end_point = solution[-1]
+    mapping.draw_node(child_coordinates=i["selfCoordinates"], \
+                      parent_coordinates= None, \
+                      map= color_map, color= mapping.GREEN)
+    cv.imshow('informed RRT* Algorithm', color_map)
+    cv.waitKey(0)
 
     print("Explored_nodes_matrix:", len(explored_nodes_list))
     print()

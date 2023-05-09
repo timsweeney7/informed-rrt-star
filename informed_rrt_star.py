@@ -11,8 +11,10 @@ import numpy as np
 import cv2 as cv
 from mapping import SCALE_FACTOR
 import heapq
+from queue import Queue
 from heapq import heapify
 import time
+from copy import deepcopy
 
 
 
@@ -51,21 +53,23 @@ best_solution - dictionary - Represents a node. {"c2c", "parentCoordinates", "se
 def get_random_point (start_point:tuple, goal_point:tuple, best_solution:dict):
     if best_solution is not None:
         x_point, y_point = -1, -1
+        best_solution_coordinates = (best_solution["selfCoordinates"][0], best_solution["selfCoordinates"][1])
         # this makes sure the new point is in the bounds of the map
-        cost_min = distance(start_point, goal_point) - GOAL_RADIUS
+        cost_min = distance(start_point, goal_point)
         # print("cost min=", cost_min)
-        cost_max = best_solution["c2c"]
+        cost_max = best_solution["c2c"] + distance(goal_point, best_solution_coordinates)
         # print("cost_max=", cost_max)
         # print("cbest=", cost_min/cost_max)
         while (cost_min/cost_max < cbest) :
             while(x_point < 0 or x_point > mapping.X_MAX_SCALED-1 or y_point < 0 or y_point > mapping.X_MAX_SCALED-1):
-                cost_min = distance(start_point, goal_point) - GOAL_RADIUS
+                cost_min = distance(start_point, goal_point)
                 # print("cost min=", cost_min)
-                cost_max = best_solution["c2c"]
+                cost_max = best_solution["c2c"] + distance(goal_point, best_solution_coordinates  )
                 # print("cost_max=", cost_max)
                 semi_major_axis = best_solution["c2c"] / 2
                 semi_minor_axis = math.sqrt(pow(cost_max, 2) - pow(cost_min, 2))/2
                 ellipse_angle = np.arctan2(goal_point[1] - start_point[1], goal_point[0] - start_point[0])
+                ellipse_angle_deg = np.rad2deg(ellipse_angle)
                 center_x = (start_point[0] + goal_point[0])/2
                 center_y = (start_point[1] + goal_point[1])/2
 
@@ -84,23 +88,21 @@ def get_random_point (start_point:tuple, goal_point:tuple, best_solution:dict):
                 y_point = rand_point[1] + center_y
                 x_point = int(x_point)
                 y_point = int(y_point)
-        
-            return (x_point, y_point)
-        with open('output.txt', 'w') as f:
-            print("cost min:", cost_min)
-            print("cost_max:", cost_max)
-            print("cbest:", cost_min/cost_max)
-            write_data_to_file("cost min:" + str(cost_min))
-            write_data_to_file("cost_max:" + str(cost_max))
-            write_data_to_file("cbest:" + str(cost_min/cost_max))
-        return(None)
+                ellipse = {"center":(round(center_x), round(center_y)),
+                           "axes":( round(semi_major_axis), round(semi_minor_axis)),
+                           "angle": ellipse_angle_deg}
+            return ((x_point, y_point), ellipse)
+        print("cost min:", cost_min)
+        print("cost_max:", cost_max)
+        print("cbest:", cost_min/cost_max)
+        return(None, None)
 
     else:
         # generate a random point in the bounds of the map
         x_coord = random.randint(0, mapping.X_MAX_SCALED-1)
         y_coord = random.randint(0, mapping.Y_MAX_SCALED-1)
         rand_pt = (x_coord, y_coord)
-        return rand_pt
+        return (rand_pt, None)
 
 
 def distance (pt1, pt2): 
@@ -185,35 +187,34 @@ def create_new_node(pt, nodes_in_neightborhood):
                             "parentCoordinates": best_neighbor, 
                             "selfCoordinates": pt, 
                             "obstacle": False}
-                
-                path = backtrack(new_node, pixel_info_map)
-                debug_count = 0
-                for node in path:
-                    if node["parentCoordinates"] is not None:
-                        debug_count += distance(pt1= node["parentCoordinates"], pt2= node["selfCoordinates"])
-                # if debug_count != new_node["c2c"]:
-                #     # print("gotcha")
                 return new_node
     except IndexError:
         return None
 
 
-def update_neighborhood(new_node, nodes_in_neightborhood, explored_nodes, pixel_map): 
-    for node in nodes_in_neightborhood:
-        dist = distance(pt1= new_node["selfCoordinates"], pt2=node ["selfCoordinates"])
-        tempC2C = dist + new_node["c2c"]
-        if tempC2C < node["c2c"]: 
-            if path_is_good(pt1=new_node["selfCoordinates"], pt2=node["selfCoordinates"]):
-                updated_neighbor = {"c2c": tempC2C, 
-                                    "parentCoordinates": new_node["selfCoordinates"], 
-                                    "selfCoordinates": node["selfCoordinates"], 
-                                    "obstacle": False}
-                for explored_node in explored_nodes:
-                    if updated_neighbor["selfCoordinates"] == explored_node["selfCoordinates"]:
-                        explored_node["c2c"] = updated_neighbor["c2c"]
-                        explored_node["parentCoordinates"] = updated_neighbor["parentCoordinates"]
-                        x, y = explored_node["selfCoordinates"]
-                        pixel_map[y][x] = explored_node
+def update_map(new_node, explored_nodes, pixel_map, rewire_radius): 
+    _queue = Queue()
+    _queue.put(new_node)
+
+    while not _queue.empty():
+        current_node = _queue.get()
+        nodes_in_neightborhood = get_neighbor_nodes(current_node["selfCoordinates"], rewire_radius, explored_nodes)
+        for node in nodes_in_neightborhood:
+            dist = distance(pt1= current_node["selfCoordinates"], pt2=node ["selfCoordinates"])
+            tempC2C = dist + current_node["c2c"]
+            if tempC2C < node["c2c"]: 
+                if path_is_good(pt1=current_node["selfCoordinates"], pt2=node["selfCoordinates"]):
+                    updated_neighbor = {"c2c": tempC2C, 
+                                        "parentCoordinates": current_node["selfCoordinates"], 
+                                        "selfCoordinates": node["selfCoordinates"], 
+                                        "obstacle": False}
+                    for explored_node in explored_nodes:
+                        if updated_neighbor["selfCoordinates"] == explored_node["selfCoordinates"]:
+                            explored_node["c2c"] = updated_neighbor["c2c"]
+                            explored_node["parentCoordinates"] = updated_neighbor["parentCoordinates"]
+                            x, y = explored_node["selfCoordinates"]
+                            pixel_map[y][x] = explored_node
+                            _queue.put(explored_node)
 
 
 """
@@ -236,12 +237,14 @@ def explore(pixel_map:list, explored_nodes:list, start_point:tuple, goal_point:t
     gen_pts_set.add(start_point)
     solution_path_list = []
     start_time = time.time()
+    lowest_cost = float('inf')
+    ellipse = None
 
     for i in range(0, num_of_iterations):
         if time.time() - start_time >= time_limit:
             break  # time limit reached, break out of the loop
         best_solution = get_current_best_solution(solutions_set, pixel_map)
-        new_pt = get_random_point(start_point, goal_point, best_solution)
+        new_pt, ellipse = get_random_point(start_point, goal_point, best_solution)
         if new_pt is None:
             break
         x, y = new_pt
@@ -254,14 +257,45 @@ def explore(pixel_map:list, explored_nodes:list, start_point:tuple, goal_point:t
                     explored_nodes.append(new_node)
                     gen_pts_set.add((x, y))  
                     pixel_map[y][x] = new_node
-                    update_neighborhood(new_node, nodes_in_neighborhood, explored_nodes, pixel_map)
+                    update_map(new_node, explored_nodes, pixel_map, rewiring_radius)
                     
                     if distance(pt1= new_pt , pt2= goal_point) < goal_radius:
-                        # print("solution found...")
                         solutions_set.add(new_pt)
                         solution_path_list.append(backtrack(new_node, pixel_map))
-    best_solution = get_current_best_solution(solutions_set, pixel_map)
-    return best_solution
+                    
+                    best_solution = get_current_best_solution(solutions_set, pixel_map)
+                    if (best_solution is not None) and (best_solution["c2c"] < lowest_cost) :
+                        solution = backtrack(best_solution, pixel_map)
+                        lowest_cost = best_solution["c2c"]
+                        starting_map = deepcopy(color_map)
+                        # for i in explored_nodes_list:
+                        #     mapping.draw_node(child_coordinates=i["selfCoordinates"], 
+                        #                     parent_coordinates=i["parentCoordinates"], 
+                        #                     map= starting_map, 
+                        #                     color= mapping.BLUE)
+                        # cv.circle(starting_map, GOAL_POINT, radius=GOAL_RADIUS, color=mapping.GRAY, thickness=-1)
+                        # for i in solution:
+                        #     mapping.draw_node(child_coordinates=i["selfCoordinates"], \
+                        #                         parent_coordinates=i["parentCoordinates"], \
+                        #                         map= starting_map, 
+                        #                         color= mapping.RED)
+                        # end_point = solution[-1]
+                        # mapping.draw_node(child_coordinates=end_point["selfCoordinates"], \
+                        #                     parent_coordinates= None, \
+                        #                     map= starting_map, 
+                        #                     color= mapping.GREEN)
+                        # if ellipse is not None:
+                        #     cv.ellipse(img= starting_map, 
+                        #             center= ellipse["center"],
+                        #             axes=ellipse["axes"],
+                        #             angle=ellipse["angle"],
+                        #             startAngle=0,
+                        #             endAngle=360,
+                        #             color=mapping.BLACK,
+                        #             thickness= 2)
+                        # cv.imshow('informed RRT* Algorithm', starting_map)
+                        # cv.waitKey(1)
+    return best_solution, ellipse
                     
 
 def backtrack (last_node:dict, map_:list):
@@ -279,12 +313,10 @@ def backtrack (last_node:dict, map_:list):
     solution_path.reverse()
     return solution_path 
 
-def write_data_to_file(data):
-    with open('output.txt', 'a') as f:
-        f.write(data + '\n')
 
+ 
 if __name__ == "__main__":
-    # print("starting search...")
+    # print()
 
     # --- Simulation Setup -----------------------
     X_MAX = mapping.X_MAX
@@ -294,12 +326,12 @@ if __name__ == "__main__":
     NUM_OF_ITERATIONS = 50000
     START_POINT = (int(X_MAX/2 - 50), int(Y_MAX/2))
     GOAL_POINT = (int(X_MAX/2 + 50),int (Y_MAX/2))
-    GOAL_RADIUS = 8
-    rewiring_radius = 20
-    cbest = .76
-    time_limit = 1000
+    GOAL_RADIUS = 12
+    rewiring_radius = 25
+    cbest = .9
+    time_limit = 60
 
-    color_map = mapping.draw_simple_map()
+    color_map = mapping.draw_simple_map2()
     pixel_info_map = create_pixel_info_map(color_map)
     
     if( not mapping.point_is_valid(color_map=color_map, coordinates=START_POINT)):
@@ -310,6 +342,8 @@ if __name__ == "__main__":
         print("invalid goal point")
         exit()
     
+    # print('Starting exploration...')
+
     starting_node = {"c2c": 0, "parentCoordinates": None, "selfCoordinates": START_POINT, "obstacle": False}
     explored_nodes_list.append(starting_node)
     
@@ -317,7 +351,7 @@ if __name__ == "__main__":
 
     
     # --- Run the algorithm ---------------------------
-    solution = explore(pixel_map= pixel_info_map, \
+    solution, ellipse = explore(pixel_map= pixel_info_map, \
                              explored_nodes= explored_nodes_list, \
                              start_point=START_POINT,\
                              goal_point=GOAL_POINT,\
@@ -326,22 +360,22 @@ if __name__ == "__main__":
     if solution is not None:
         print("Number of iterations needed to find solution: " + str(len(explored_nodes_list)))
         solution = backtrack(last_node= solution, map_= pixel_info_map)
-    # else: 
-    #     print("Solution not found after " + str(NUM_OF_ITERATIONS) + " points checked!")
-    #     exit()
+    else: 
+        print("Solution not found after " + str(NUM_OF_ITERATIONS) + " points checked!")
+        exit()
     end_time = time.time()
-    with open('output.txt', 'a') as f:
-        print("Solution found after (seconds):", (end_time - start_time))
-        write_data_to_file("Solution found after(seconds):" + str(end_time - start_time))
+    print("Solution found after (seconds):", (end_time - start_time))
+
 
     #--- Display results ----------------------------
+
+    # print()
+    # print("Done!")
 
     # for i in explored_nodes_list:
     #     mapping.draw_node(child_coordinates=i["selfCoordinates"], \
     #                       parent_coordinates=i["parentCoordinates"], \
     #                       map= color_map, color= mapping.BLUE)
-    # cv.imshow('informed RRT* Algorithm', color_map)
-    # cv.waitKey(0)
 
     # cv.circle(color_map, GOAL_POINT, radius=GOAL_RADIUS, color=mapping.GRAY, thickness=-1)
 
@@ -349,13 +383,22 @@ if __name__ == "__main__":
     #     mapping.draw_node(child_coordinates=i["selfCoordinates"], \
     #                       parent_coordinates=i["parentCoordinates"], \
     #                       map= color_map, color= mapping.RED)
-    #     cv.imshow('informed RRT* Algorithm', color_map)
-    #     cv.waitKey(0)
                         
     # end_point = solution[-1]
     # mapping.draw_node(child_coordinates=i["selfCoordinates"], \
     #                   parent_coordinates= None, \
     #                   map= color_map, color= mapping.GREEN)
+    
+    # if ellipse is not None:
+    #     cv.ellipse(img= color_map, 
+    #             center= ellipse["center"],
+    #             axes=ellipse["axes"],
+    #             angle=ellipse["angle"],
+    #             startAngle=0,
+    #             endAngle=360,
+    #             color=mapping.BLACK,
+    #             thickness= 2)
+                            
     # cv.imshow('informed RRT* Algorithm', color_map)
     # cv.waitKey(0)
 

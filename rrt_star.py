@@ -51,10 +51,11 @@ best_solution - dictionary - Represents a node. {"c2c", "parentCoordinates", "se
 def get_random_point (start_point:tuple, goal_point:tuple, best_solution:dict):
     if best_solution is not None:
         x_point, y_point = -1, -1
+        best_solution_coordinates = (best_solution["selfCoordinates"][0], best_solution["selfCoordinates"][1])
         # this makes sure the new point is in the bounds of the map
-        cost_min = distance(start_point, goal_point) - GOAL_RADIUS
+        cost_min = distance(start_point, goal_point)
         # print("cost min=", cost_min)
-        cost_max = best_solution["c2c"]
+        cost_max = best_solution["c2c"] + distance(goal_point, best_solution_coordinates)
         # print("cost_max=", cost_max)
         # print("cbest=", cost_min/cost_max)
         while (cost_min/cost_max < cbest) :
@@ -270,15 +271,15 @@ if __name__ == "__main__":
     Y_MAX = mapping.Y_MAX
     start_time = time.time()
     explored_nodes_list = []
-    NUM_OF_ITERATIONS = 100000
+    NUM_OF_ITERATIONS = 50000
     START_POINT = (int(X_MAX/2 - 50), int(Y_MAX/2))
     GOAL_POINT = (int(X_MAX/2 + 50),int (Y_MAX/2))
-    GOAL_RADIUS = 5
-    rewiring_radius = 20
-    cbest = .75
-    time_limit = 1000
+    GOAL_RADIUS = 12
+    rewiring_radius = 25
+    cbest = .9
+    time_limit = 60
 
-    color_map = mapping.draw_simple_map()
+    color_map = mapping.draw_simple_map2()
     pixel_info_map = create_pixel_info_map(color_map)
     
     if( not mapping.point_is_valid(color_map=color_map, coordinates=START_POINT)):

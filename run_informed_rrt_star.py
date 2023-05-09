@@ -2,7 +2,7 @@ import csv
 import os
 
 # Define the number of runs and the output file name
-num_runs = 20    
+num_runs = 10    
 output_file = "combined_output_informed_rrt_star.csv"
 
 # Run the code

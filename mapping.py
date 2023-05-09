@@ -4,8 +4,8 @@ import random
 
 
 # map dimensions
-X_MAX = 400
-Y_MAX = 400
+X_MAX = 300
+Y_MAX = 300
 SCALE_FACTOR = 1
 X_MAX_SCALED = X_MAX * SCALE_FACTOR
 Y_MAX_SCALED = Y_MAX * SCALE_FACTOR
@@ -24,6 +24,13 @@ WHITE = (255,255,255)
 # for coordinates
 X = 0
 Y = 1
+
+def draw_empty_map():
+    background_color = WHITE
+    map = np.zeros((Y_MAX_SCALED, X_MAX_SCALED, 3), np.uint8)
+    map[:] = background_color
+
+    return map
 
 def draw_simple_map():
     background_color = WHITE

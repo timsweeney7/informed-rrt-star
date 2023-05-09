@@ -1,7 +1,0 @@
-cost min: 100.0
-cost_max: 101.14877295812165
-cbest: 0.9886427395555527
-Number of iterations needed to find solution: 2377
-Solution found after (seconds): 37.90007424354553
-Explored_nodes_matrix: 2377
-

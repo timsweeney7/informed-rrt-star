@@ -275,11 +275,11 @@ if __name__ == "__main__":
     START_POINT = (int(X_MAX/2 - 50), int(Y_MAX/2))
     GOAL_POINT = (int(X_MAX/2 + 50),int (Y_MAX/2))
     GOAL_RADIUS = 12
-    rewiring_radius = 25
+    rewiring_radius = 40
     cbest = .9
     time_limit = 60
 
-    color_map = mapping.draw_simple_map2()
+    color_map = mapping.draw_simple_map()
     pixel_info_map = create_pixel_info_map(color_map)
     
     if( not mapping.point_is_valid(color_map=color_map, coordinates=START_POINT)):

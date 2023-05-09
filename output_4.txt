@@ -1,4 +1,0 @@
-Number of iterations needed to find solution: 2682
-Solution found after (seconds): 61.35827016830444
-Explored_nodes_matrix: 2682
-

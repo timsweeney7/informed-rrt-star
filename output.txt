@@ -1,5 +1,0 @@
-cost min:100.0
-cost_max:101.0971507115898
-cbest:0.9891475605012869
-Solution found after(seconds):28.249741792678833
-Solution found after(seconds):61.84130787849426

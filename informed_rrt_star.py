@@ -59,7 +59,7 @@ def get_random_point (start_point:tuple, goal_point:tuple, best_solution:dict):
         # print("cost min=", cost_min)
         cost_max = best_solution["c2c"] + distance(goal_point, best_solution_coordinates)
         # print("cost_max=", cost_max)
-        # print("cbest=", cost_min/cost_max)
+        print("cbest=", cost_min/cost_max)
         while (cost_min/cost_max < cbest) :
             while(x_point < 0 or x_point > mapping.X_MAX_SCALED-1 or y_point < 0 or y_point > mapping.X_MAX_SCALED-1):
                 cost_min = distance(start_point, goal_point)
@@ -268,33 +268,33 @@ def explore(pixel_map:list, explored_nodes:list, start_point:tuple, goal_point:t
                         solution = backtrack(best_solution, pixel_map)
                         lowest_cost = best_solution["c2c"]
                         starting_map = deepcopy(color_map)
-                        # for i in explored_nodes_list:
-                        #     mapping.draw_node(child_coordinates=i["selfCoordinates"], 
-                        #                     parent_coordinates=i["parentCoordinates"], 
-                        #                     map= starting_map, 
-                        #                     color= mapping.BLUE)
-                        # cv.circle(starting_map, GOAL_POINT, radius=GOAL_RADIUS, color=mapping.GRAY, thickness=-1)
-                        # for i in solution:
-                        #     mapping.draw_node(child_coordinates=i["selfCoordinates"], \
-                        #                         parent_coordinates=i["parentCoordinates"], \
-                        #                         map= starting_map, 
-                        #                         color= mapping.RED)
-                        # end_point = solution[-1]
-                        # mapping.draw_node(child_coordinates=end_point["selfCoordinates"], \
-                        #                     parent_coordinates= None, \
-                        #                     map= starting_map, 
-                        #                     color= mapping.GREEN)
-                        # if ellipse is not None:
-                        #     cv.ellipse(img= starting_map, 
-                        #             center= ellipse["center"],
-                        #             axes=ellipse["axes"],
-                        #             angle=ellipse["angle"],
-                        #             startAngle=0,
-                        #             endAngle=360,
-                        #             color=mapping.BLACK,
-                        #             thickness= 2)
-                        # cv.imshow('informed RRT* Algorithm', starting_map)
-                        # cv.waitKey(1)
+                        for i in explored_nodes_list:
+                            mapping.draw_node(child_coordinates=i["selfCoordinates"], 
+                                            parent_coordinates=i["parentCoordinates"], 
+                                            map= starting_map, 
+                                            color= mapping.BLUE)
+                        cv.circle(starting_map, GOAL_POINT, radius=GOAL_RADIUS, color=mapping.GRAY, thickness=-1)
+                        for i in solution:
+                            mapping.draw_node(child_coordinates=i["selfCoordinates"], \
+                                                parent_coordinates=i["parentCoordinates"], \
+                                                map= starting_map, 
+                                                color= mapping.RED)
+                        end_point = solution[-1]
+                        mapping.draw_node(child_coordinates=end_point["selfCoordinates"], \
+                                            parent_coordinates= None, \
+                                            map= starting_map, 
+                                            color= mapping.GREEN)
+                        if ellipse is not None:
+                            cv.ellipse(img= starting_map, 
+                                    center= ellipse["center"],
+                                    axes=ellipse["axes"],
+                                    angle=ellipse["angle"],
+                                    startAngle=0,
+                                    endAngle=360,
+                                    color=mapping.BLACK,
+                                    thickness= 2)
+                        cv.imshow('informed RRT* Algorithm', starting_map)
+                        cv.waitKey(1)
     return best_solution, ellipse
                     
 
@@ -331,7 +331,7 @@ if __name__ == "__main__":
     cbest = .9
     time_limit = 60
 
-    color_map = mapping.draw_simple_map2()
+    color_map = mapping.draw_simple_map()
     pixel_info_map = create_pixel_info_map(color_map)
     
     if( not mapping.point_is_valid(color_map=color_map, coordinates=START_POINT)):
@@ -369,38 +369,38 @@ if __name__ == "__main__":
 
     #--- Display results ----------------------------
 
-    # print()
-    # print("Done!")
+    print()
+    print("Done!")
 
-    # for i in explored_nodes_list:
-    #     mapping.draw_node(child_coordinates=i["selfCoordinates"], \
-    #                       parent_coordinates=i["parentCoordinates"], \
-    #                       map= color_map, color= mapping.BLUE)
+    for i in explored_nodes_list:
+        mapping.draw_node(child_coordinates=i["selfCoordinates"], \
+                          parent_coordinates=i["parentCoordinates"], \
+                          map= color_map, color= mapping.BLUE)
 
-    # cv.circle(color_map, GOAL_POINT, radius=GOAL_RADIUS, color=mapping.GRAY, thickness=-1)
+    cv.circle(color_map, GOAL_POINT, radius=GOAL_RADIUS, color=mapping.GRAY, thickness=-1)
 
-    # for i in solution:
-    #     mapping.draw_node(child_coordinates=i["selfCoordinates"], \
-    #                       parent_coordinates=i["parentCoordinates"], \
-    #                       map= color_map, color= mapping.RED)
+    for i in solution:
+        mapping.draw_node(child_coordinates=i["selfCoordinates"], \
+                          parent_coordinates=i["parentCoordinates"], \
+                          map= color_map, color= mapping.RED)
                         
-    # end_point = solution[-1]
-    # mapping.draw_node(child_coordinates=i["selfCoordinates"], \
-    #                   parent_coordinates= None, \
-    #                   map= color_map, color= mapping.GREEN)
+    end_point = solution[-1]
+    mapping.draw_node(child_coordinates=i["selfCoordinates"], \
+                      parent_coordinates= None, \
+                      map= color_map, color= mapping.GREEN)
     
-    # if ellipse is not None:
-    #     cv.ellipse(img= color_map, 
-    #             center= ellipse["center"],
-    #             axes=ellipse["axes"],
-    #             angle=ellipse["angle"],
-    #             startAngle=0,
-    #             endAngle=360,
-    #             color=mapping.BLACK,
-    #             thickness= 2)
+    if ellipse is not None:
+        cv.ellipse(img= color_map, 
+                center= ellipse["center"],
+                axes=ellipse["axes"],
+                angle=ellipse["angle"],
+                startAngle=0,
+                endAngle=360,
+                color=mapping.BLACK,
+                thickness= 2)
                             
-    # cv.imshow('informed RRT* Algorithm', color_map)
-    # cv.waitKey(0)
+    cv.imshow('informed RRT* Algorithm', color_map)
+    cv.waitKey(0)
 
     print("Explored_nodes_matrix:", len(explored_nodes_list))
     print()

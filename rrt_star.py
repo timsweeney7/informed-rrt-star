@@ -67,9 +67,9 @@ def get_random_point (start_point:tuple, goal_point:tuple, best_solution:dict):
             print("cost min:", cost_min)
             print("cost_max:", cost_max)
             print("cbest:", cost_min/cost_max)
-            write_data_to_file("cost min:" + str(cost_min))
-            write_data_to_file("cost_max:" + str(cost_max))
-            write_data_to_file("cbest:" + str(cost_min/cost_max))
+            # write_data_to_file("cost min:" + str(cost_min))
+            # write_data_to_file("cost_max:" + str(cost_max))
+            # write_data_to_file("cbest:" + str(cost_min/cost_max))
         return(None)
 
     else:
@@ -276,10 +276,10 @@ if __name__ == "__main__":
     GOAL_POINT = (int(X_MAX/2 + 50),int (Y_MAX/2))
     GOAL_RADIUS = 12
     rewiring_radius = 40
-    cbest = .9
+    cbest = .97
     time_limit = 60
 
-    color_map = mapping.draw_simple_map()
+    color_map = mapping.draw_simple_map2()
     pixel_info_map = create_pixel_info_map(color_map)
     
     if( not mapping.point_is_valid(color_map=color_map, coordinates=START_POINT)):
@@ -317,28 +317,28 @@ if __name__ == "__main__":
 
     #--- Display results ----------------------------
 
-    # for i in explored_nodes_list:
-    #     mapping.draw_node(child_coordinates=i["selfCoordinates"], \
-    #                       parent_coordinates=i["parentCoordinates"], \
-    #                       map= color_map, color= mapping.BLUE)
-    # cv.imshow('RRT* Algorithm', color_map)
-    # cv.waitKey(0)
+    for i in explored_nodes_list:
+        mapping.draw_node(child_coordinates=i["selfCoordinates"], \
+                          parent_coordinates=i["parentCoordinates"], \
+                          map= color_map, color= mapping.BLUE)
+    cv.imshow('RRT* Algorithm', color_map)
+    cv.waitKey(0)
 
-    # cv.circle(color_map, GOAL_POINT, radius=GOAL_RADIUS, color=mapping.GRAY, thickness=-1)
+    cv.circle(color_map, GOAL_POINT, radius=GOAL_RADIUS, color=mapping.GRAY, thickness=-1)
 
-    # for i in solution:
-    #     mapping.draw_node(child_coordinates=i["selfCoordinates"], \
-    #                       parent_coordinates=i["parentCoordinates"], \
-    #                       map= color_map, color= mapping.RED)
-    #     cv.imshow('RRT* Algorithm', color_map)
-    #     cv.waitKey(0)
+    for i in solution:
+        mapping.draw_node(child_coordinates=i["selfCoordinates"], \
+                          parent_coordinates=i["parentCoordinates"], \
+                          map= color_map, color= mapping.RED)
+        cv.imshow('RRT* Algorithm', color_map)
+        cv.waitKey(0)
                         
-    # end_point = solution[-1]
-    # mapping.draw_node(child_coordinates=i["selfCoordinates"], \
-    #                   parent_coordinates= None, \
-    #                   map= color_map, color= mapping.GREEN)
-    # cv.imshow('RRT* Algorithm', color_map)
-    # cv.waitKey(0)
+    end_point = solution[-1]
+    mapping.draw_node(child_coordinates=i["selfCoordinates"], \
+                      parent_coordinates= None, \
+                      map= color_map, color= mapping.GREEN)
+    cv.imshow('RRT* Algorithm', color_map)
+    cv.waitKey(0)
 
     print("Explored_nodes_matrix:", len(explored_nodes_list))
     print()

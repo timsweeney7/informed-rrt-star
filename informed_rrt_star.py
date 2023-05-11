@@ -59,7 +59,7 @@ def get_random_point (start_point:tuple, goal_point:tuple, best_solution:dict):
         # print("cost min=", cost_min)
         cost_max = best_solution["c2c"] + distance(goal_point, best_solution_coordinates)
         # print("cost_max=", cost_max)
-        print("cbest=", cost_min/cost_max)
+        # print("cbest=", cost_min/cost_max)
         while (cost_min/cost_max < cbest) :
             while(x_point < 0 or x_point > mapping.X_MAX_SCALED-1 or y_point < 0 or y_point > mapping.X_MAX_SCALED-1):
                 cost_min = distance(start_point, goal_point)
@@ -328,10 +328,10 @@ if __name__ == "__main__":
     GOAL_POINT = (int(X_MAX/2 + 50),int (Y_MAX/2))
     GOAL_RADIUS = 12
     rewiring_radius = 25
-    cbest = .9
+    cbest = .95
     time_limit = 60
 
-    color_map = mapping.draw_simple_map()
+    color_map = mapping.draw_simple_map2()
     pixel_info_map = create_pixel_info_map(color_map)
     
     if( not mapping.point_is_valid(color_map=color_map, coordinates=START_POINT)):
